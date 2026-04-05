@@ -18,5 +18,4 @@ const projectMemberSchema=new Schema({
         default : UserRolesEnum.MEMBER,  // when we need value
     },
 },{timeStamps:true});
-
 export const ProjectMember=mongoose.model("ProjectMember",projectMemberSchema)

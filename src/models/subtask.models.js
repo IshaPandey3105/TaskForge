@@ -20,5 +20,4 @@ const subtaskSchema=new Schema({
         required:true
     }
 },{timestamps:true});
-
 export const SubTask=mongoose.model("SubTask",subtaskSchema)

@@ -15,5 +15,4 @@ const projectNoteSchema=new Schema({
         required:true
     }
 },{timeStamps:true});
-
 export const ProjectNote=mongoose.model("ProjectNote",projectNoteSchema)

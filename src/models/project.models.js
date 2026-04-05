@@ -15,5 +15,4 @@ const projectSchema=new Schema({
         required:true,
     },
 },{timeStamps:true});
-
 export const Project=mongoose.model("Project",projectSchema)

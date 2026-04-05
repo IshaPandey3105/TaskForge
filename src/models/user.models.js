@@ -99,5 +99,4 @@ userSchema.methods.generateTemporaryToken = function(){
 
     return {hashedToken,unHashedToken,tokenExpiry}
 }
-
 export const User=mongoose.model("User",userSchema)
