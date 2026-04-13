@@ -5,5 +5,4 @@ const registerUser = asyncHandler(async(req,res) =>{
     // validation
     registerValidation(body)
 });
-
 export { registerUser };

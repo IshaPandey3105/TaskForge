@@ -9,5 +9,4 @@ const healthCheck = async (req,res) => {
 
     }
 };
-
 export { healthCheck};
