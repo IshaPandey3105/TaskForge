@@ -9,7 +9,7 @@ const userSchema=new Schema({
                 url:String,
                 localpath:String
         },
-        deafult:{
+        default:{
             url:`https://placehold.co/600x400`,
             localpath:""
         },
@@ -61,12 +61,12 @@ const userSchema=new Schema({
 
 userSchema.pre("save",async function(next){
     if(!this.isModified("password")) return next();
-    this.passwrod=await bcrypt.hash(this.password,10)
+    this.password=await bcrypt.hash(this.password,10)
     next()
 })
 
 userSchema.methods.isPasswordCorrect = async function(password){
-    return await bcrypt.comapre(password,this.password)
+    return await bcrypt.compare(password,this.password)
 }
 
 userSchema.methods.generateAccessToken = function(){
