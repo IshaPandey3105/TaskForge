@@ -13,6 +13,7 @@ const userRegistrationValidator = () => {
     ];
 };
 
+
 const userLoginValidator = () => {
     return[
         body("email")
