@@ -1,4 +1,5 @@
 import mongoose,{Schema} from "mongoose";
+
 const subtaskSchema=new Schema({
     title:{
         type:String,
@@ -20,4 +21,5 @@ const subtaskSchema=new Schema({
         required:true
     }
 },{timestamps:true});
+
 export const SubTask=mongoose.model("SubTask",subtaskSchema)

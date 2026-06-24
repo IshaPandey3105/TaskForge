@@ -41,4 +41,5 @@ const taskSchema=new Schema({
         default:[]
     }
 },{timestamps:true});
+
 export const Task=mongoose.model("Task",TaskSchema)
