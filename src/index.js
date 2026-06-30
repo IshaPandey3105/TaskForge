@@ -7,6 +7,7 @@ dotenv.config({
 });
 
 const PORT = process.env.Port || 8000;
+app.use("/images", express.static("public/images"));
 
 connectDB()
     .then(()=>{
