@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router } from 'express';
 import {
   addMemberToProject,
   createProject,
@@ -9,50 +9,50 @@ import {
   getProjects,
   updateMemberRole,
   updateProject,
-} from "../controllers/project.controllers.js";
+} from '../controllers/project.controllers.js';
 import {
   validateProjectPermission,
   verifyJWT,
-} from "../middlewares/auth.middleware.js";
-import { validate } from "../middlewares/validator.middleware.js";
-import { AvailableUserRoles, UserRolesEnum } from "../utils/constants.js";
+} from '../middlewares/auth.middleware.js';
+import { validate } from '../middlewares/validator.middleware.js';
+import { AvailableUserRoles, UserRolesEnum } from '../utils/constants.js';
 import {
   addMemberToProjectValidator,
   createProjectValidator,
-} from "../validators/index.js";
+} from '../validators/index.js';
 
 const router = Router();
 
 router.use(verifyJWT);
 
 router
-  .route("/")
+  .route('/')
   .get(getProjects)
   .post(createProjectValidator(), validate, createProject);
 
 router
-  .route("/:projectId")
+  .route('/:projectId')
   .get(validateProjectPermission(AvailableUserRoles), getProjectById)
   .put(
     validateProjectPermission([UserRolesEnum.ADMIN]),
     createProjectValidator(),
     validate,
-    updateProject,
+    updateProject
   )
   .delete(validateProjectPermission([UserRolesEnum.ADMIN]), deleteProject);
 
 router
-  .route("/:projectId/members")
+  .route('/:projectId/members')
   .get(getProjectMembers)
   .post(
     validateProjectPermission([UserRolesEnum.ADMIN]),
     addMemberToProjectValidator(),
     validate,
-    addMemberToProject,
+    addMemberToProject
   );
 
 router
-  .route("/:projectId/members/:userId")
+  .route('/:projectId/members/:userId')
   .put(validateProjectPermission([UserRolesEnum.ADMIN]), updateMemberRole)
   .delete(validateProjectPermission([UserRolesEnum.ADMIN]), deleteMember);
 
