@@ -1,6 +1,7 @@
 import MailGen from "mailgen";
 import nodemailer from "nodemailer";
 
+
 const sendMail = async (options) => {
   // Initialize MailGen
   const mailGenerator = new MailGen({
@@ -83,6 +84,7 @@ const forgotPasswordMailGenContent = (username, passwordResetUrl) => {
     },
   };
 };
+
 
 export {
   emailVerificationMailGenContent,
