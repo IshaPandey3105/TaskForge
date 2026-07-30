@@ -5,7 +5,7 @@ import express from "express";
 
 dotenv.config({ 
     path:"./.env",
-});
+}); 
 
 const PORT = process.env.Port || 8000;
 app.use("/images", express.static("public/images"));
