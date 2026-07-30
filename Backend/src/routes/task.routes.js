@@ -19,11 +19,11 @@ import { AvailableUserRoles, UserRolesEnum } from '../utils/constants.js';
 import {
   createTaskValidator,
   updateTaskValidator,
-} from '../validators/index.js';
+} from '../validators/val.js';
 
 const router = Router();
 
-router.use(verifyJWT);
+router.use(verifyJWT); 
 
 router
   .route('/:projectId')

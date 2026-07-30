@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/user.models.js';
 import { ApiError } from '../utils/api-error.js';
 import { asyncHandler } from '../utils/async-handler.js';
-import { ProjectMember } from '../models/projectmember.model.js';
+import { ProjectMember } from '../models/projectmember.models.js';
 import mongoose from 'mongoose';
 
 export const verifyJWT = asyncHandler(async (req, res, next) => {

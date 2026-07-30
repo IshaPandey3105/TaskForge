@@ -1,9 +1,9 @@
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import {
-  emailVerificationMailgenContent,
-  forgotPasswordMailgenContent,
-  sendEmail,
+  emailVerificationMailGenContent,
+  forgotPasswordMailGenContent,
+  sendMail,
 } from "../utils/mail.js";
 import { User } from "../models/user.models.js";
 import { ApiError } from "../utils/api-error.js";

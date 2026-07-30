@@ -8,18 +8,18 @@ import {
   refreshAccessToken,
   registerUser,
   resendEmailVerification,
-  resetForgottenPassword,
+  resetForgottenPassword, 
   verifyEmail,
 } from "../controllers/auth.controllers.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { validate } from "../middlewares/validator.middleware.js";
 import {
-  userChangeCurrentPasswordValidator,
+  userChangeCurrentPasswordValidator, 
   userForgotPasswordValidator,
   userLoginValidator,
   userRegisterValidator,
   userResetForgottenPasswordValidator,
-} from "../validators/index.js";
+} from "../validators/val.js";
 
 const router = Router(); 
 

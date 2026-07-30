@@ -19,7 +19,7 @@ import { AvailableUserRoles, UserRolesEnum } from '../utils/constants.js';
 import {
   addMemberToProjectValidator,
   createProjectValidator,
-} from '../validators/index.js';
+} from '../validators/val.js';
 
 const router = Router();
 

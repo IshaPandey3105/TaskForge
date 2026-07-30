@@ -1,4 +1,4 @@
-export const UserRoleEnum={
+export const UserRolesEnum={
     ADMIN:"admin",
     PROJECT_ADMIN:"project-admin",
     MEMBER:"member"
@@ -14,4 +14,4 @@ export const TaskStatusEnum={
 }
 
 
-export const AvailableTaskStatus = Object.values(TaskStatusEnum)
+export const AvailableTaskStatuses = Object.values(TaskStatusEnum)

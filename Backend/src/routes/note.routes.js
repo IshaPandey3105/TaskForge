@@ -12,7 +12,7 @@ import {
 } from '../middlewares/auth.middleware.js';
 import { validate } from '../middlewares/validator.middleware.js';
 import { AvailableUserRoles, UserRolesEnum } from '../utils/constants.js';
-import { notesValidator } from '../validators/index.js';
+import { notesValidator } from '../validators/val.js';
 
 const router = Router();
 
