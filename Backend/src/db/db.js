@@ -1,13 +1,15 @@
-import mongoose from "mongoose"
+import mongoose from 'mongoose';
 
-const connectDB = async() => {
-    try{
-        await mongoose.connect(process.env.MONGO_URI)
-        console.log("MongoDB connect")
-    }catch(error){
-        console.log("MongoDB connection failed",error)
-        process.exit(1)
-    }
-}
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      dbName: 'taskforge',
+    });
+    console.log('MongoDB connect');
+  } catch (error) {
+    console.log('MongoDB connection failed', error);
+    process.exit(1);
+  }
+};
 
-export default connectDB
+export default connectDB;
