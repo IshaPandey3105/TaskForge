@@ -47,8 +47,10 @@ const createProject = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Project name is required');
   }
 
-  // Check if a project with the same name already exists
-  const existingProject = await Project.findOne({ name });
+  const existingProject = await Project.findOne({
+    name,
+    createdBy: req.user._id,
+  });
 
   if (existingProject) {
     throw new ApiError(409, 'Project with the same name already exists');
@@ -79,13 +81,30 @@ const updateProject = asyncHandler(async (req, res) => {
   const { name, description } = req.body;
   const { projectId } = req.params;
 
+  const projectName = name.trim();
+
+  // Check if another project with the same name
+  // already exists for this user
+  const existingProject = await Project.findOne({
+    name: projectName,
+    createdBy: req.user._id,
+    _id: { $ne: projectId },
+  });
+
+  if (existingProject) {
+    throw new ApiError(409, 'Project with the same name already exists');
+  }
+
   const project = await Project.findByIdAndUpdate(
     projectId,
     {
-      name,
+      name: projectName,
       description,
     },
-    { new: true }
+    {
+      new: true,
+      runValidators: true,
+    }
   );
 
   if (!project) {
@@ -106,37 +125,40 @@ const deleteProject = asyncHandler(async (req, res) => {
     throw new ApiError(404, 'Project not found');
   }
 
+  // Delete all memberships belonging to this project only
+  await ProjectMember.deleteMany({
+    project: projectId,
+  });
+
   return res
     .status(200)
     .json(new ApiResponse(200, project, 'Project deleted successfully'));
 });
 
 const addMemberToProject = asyncHandler(async (req, res) => {
-  const { email, username, role } = req.body;
+  const { email, role } = req.body;
   const { projectId } = req.params;
-  const user = await User.findOne({
-    $or: [{ username }, { email }],
-  });
+
+  const user = await User.findOne({ email });
 
   if (!user) {
     throw new ApiError(404, 'User does not exist');
   }
 
-  await ProjectMember.findOneAndUpdate(
-    {
-      user: new mongoose.Types.ObjectId(user._id),
-      project: new mongoose.Types.ObjectId(projectId),
-    },
-    {
-      user: new mongoose.Types.ObjectId(user._id),
-      project: new mongoose.Types.ObjectId(projectId),
-      role: role,
-    },
-    {
-      new: true,
-      upsert: true,
-    }
-  );
+  const existingMember = await ProjectMember.findOne({
+    user: user._id,
+    project: projectId,
+  });
+
+  if (existingMember) {
+    throw new ApiError(409, 'User is already a member of this project');
+  }
+
+  await ProjectMember.create({
+    user: user._id,
+    project: projectId,
+    role,
+  });
 
   return res
     .status(201)
@@ -198,7 +220,10 @@ const updateMemberRole = asyncHandler(async (req, res) => {
     {
       role: newRole,
     },
-    { new: true }
+    {
+      new: true,
+      runValidators: true,
+    }
   );
 
   if (!projectMember) {

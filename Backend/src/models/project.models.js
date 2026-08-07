@@ -1,11 +1,10 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema } from "mongoose";
 
 const projectSchema = new Schema(
   {
     name: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
     description: {
@@ -13,11 +12,20 @@ const projectSchema = new Schema(
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
   },
   { timestamps: true }
 );
 
-export const Project = mongoose.model('Project', projectSchema);
+//  Compound unique index
+//  Same user cannot have two projects with the same name.
+//  Different users can have projects with the same name.
+
+projectSchema.index(
+  { createdBy: 1, name: 1 },
+  { unique: true }
+);
+
+export const Project = mongoose.model("Project", projectSchema);
