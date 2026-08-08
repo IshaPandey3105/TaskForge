@@ -111,6 +111,9 @@ const loginUser = asyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(404, 'User does not exist');
   }
+  if (!user.isEmailVerified) {
+    throw new ApiError(403, 'Please verify your email before logging in');
+  }
 
   // Compare the incoming password with hashed password
   const isPasswordValid = await user.isPasswordCorrect(password);
@@ -173,14 +176,14 @@ const verifyEmail = asyncHandler(async (req, res) => {
   const { verificationToken } = req.params;
 
   if (!verificationToken) {
-    throw new ApiError(400, "Email verification token is missing");
+    throw new ApiError(400, 'Email verification token is missing');
   }
 
   // Generate hash from the received token
   const hashedToken = crypto
-    .createHash("sha256")
+    .createHash('sha256')
     .update(verificationToken)
-    .digest("hex");
+    .digest('hex');
 
   // Find user with matching token and valid expiry
   const user = await User.findOne({
@@ -189,7 +192,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
   });
 
   if (!user) {
-    throw new ApiError(489, "Token is invalid or expired");
+    throw new ApiError(489, 'Token is invalid or expired');
   }
 
   // Mark email as verified
@@ -199,13 +202,9 @@ const verifyEmail = asyncHandler(async (req, res) => {
 
   await user.save({ validateBeforeSave: false });
 
-  return res.status(200).json(
-    new ApiResponse(
-      200,
-      { isEmailVerified: true },
-      "Email is verified"
-    )
-  );
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { isEmailVerified: true }, 'Email is verified'));
 });
 
 // This controller is called when user is logged in and he has snackbar that your email is not verified
