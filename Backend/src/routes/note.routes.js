@@ -22,7 +22,10 @@ router
   .route('/:projectId')
   .get(validateProjectPermission(AvailableUserRoles), getNotes)
   .post(
-    validateProjectPermission([UserRolesEnum.ADMIN]),
+    validateProjectPermission([
+      UserRolesEnum.ADMIN,
+      UserRolesEnum.PROJECT_ADMIN,
+    ]),
     notesValidator(),
     validate,
     createNote
@@ -32,11 +35,17 @@ router
   .route('/:projectId/n/:noteId')
   .get(validateProjectPermission(AvailableUserRoles), getNoteById)
   .put(
-    validateProjectPermission([UserRolesEnum.ADMIN]),
+    validateProjectPermission([
+      UserRolesEnum.ADMIN,
+      UserRolesEnum.PROJECT_ADMIN,
+    ]),
     notesValidator(),
     validate,
     updateNote
   )
-  .delete(validateProjectPermission([UserRolesEnum.ADMIN]), deleteNote);
+  .delete(validateProjectPermission([
+    UserRolesEnum.ADMIN,
+    UserRolesEnum.PROJECT_ADMIN,
+  ]), deleteNote);
 
 export default router;
