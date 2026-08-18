@@ -1,8 +1,7 @@
-import {useState} from "react";
+import { useState } from "react";
 import api from "../services/api";
 import useAuthStore from "../store/authStore";
-import {useNavigate} from "react-router-dom";
-import {Link} from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Login() {
   const [identifier, setIdentifier] = useState("");
@@ -53,13 +52,21 @@ function Login() {
       navigate("/dashboard");
 
       console.log("Login successful:", user);
-
-      // We'll add navigation and auth state here next.
     } catch (error) {
       const message =
-        error.response?.data?.message || "Unable to login. Please try again.";
+        error.response?.data?.message ||
+        "Unable to login. Please try again.";
 
       setError(message);
+
+      // If email is not verified,
+      // redirect user to the resend verification page.
+      if (
+        message ===
+        "Please verify your email before logging in"
+      ) {
+        navigate("/resend-email-verification");
+      }
     } finally {
       setLoading(false);
     }
@@ -73,7 +80,10 @@ function Login() {
 
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="identifier">Username or Email</label>
+          <label htmlFor="identifier">
+            Username or Email
+          </label>
+
           <input
             id="identifier"
             type="text"
@@ -86,6 +96,7 @@ function Login() {
 
         <div>
           <label htmlFor="password">Password</label>
+
           <input
             id="password"
             type="password"
@@ -99,8 +110,15 @@ function Login() {
         <button type="submit" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
+
         <p>
-          Don't have an account? <Link to="/register">Register</Link>
+          Don't have an account?{" "}
+          <Link to="/register">Register</Link>
+        </p>
+
+        <p>
+          Forgot your password?{" "}
+          <Link to="/forgot-password">Reset it</Link>
         </p>
       </form>
     </div>

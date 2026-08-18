@@ -57,7 +57,7 @@ router
 
 router
   .route("/resend-email-verification")
-  .post(verifyJWT, resendEmailVerification);
+  .post( resendEmailVerification);
 
 
 export default router;
