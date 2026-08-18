@@ -4,12 +4,35 @@ import api from "../services/api";
 const useAuthStore = create((set) => ({
   user: null,
   isAuthenticated: false,
+  isLoading: true,
 
   login: (user) =>
     set({
       user,
       isAuthenticated: true,
     }),
+
+  checkAuth: async () => {
+    try {
+      const response = await api.get("/auth/current-user");
+
+      const user = response.data.data;
+
+      set({
+        user,
+        isAuthenticated: true,
+      });
+    } catch (error) {
+      set({
+        user: null,
+        isAuthenticated: false,
+      });
+    } finally {
+      set({
+        isLoading: false,
+      });
+    }
+  },
 
   logout: async () => {
     try {
