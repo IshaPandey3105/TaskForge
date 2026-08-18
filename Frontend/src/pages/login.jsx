@@ -1,7 +1,8 @@
 import {useState} from "react";
 import api from "../services/api";
 import useAuthStore from "../store/authStore";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
+import {Link} from "react-router-dom";
 
 function Login() {
   const [identifier, setIdentifier] = useState("");
@@ -11,7 +12,7 @@ function Login() {
   const [loading, setLoading] = useState(false);
 
   const login = useAuthStore((state) => state.login);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,6 +99,9 @@ function Login() {
         <button type="submit" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
+        <p>
+          Don't have an account? <Link to="/register">Register</Link>
+        </p>
       </form>
     </div>
   );
