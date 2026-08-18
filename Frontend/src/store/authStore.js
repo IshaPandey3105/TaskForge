@@ -34,6 +34,7 @@ const useAuthStore = create((set) => ({
     }
   },
 
+  
   logout: async () => {
     try {
       await api.post("/auth/logout");
