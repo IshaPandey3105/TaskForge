@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import api from "../services/api";
 
 function Register() {
@@ -13,8 +13,6 @@ function Register() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -65,7 +63,7 @@ function Register() {
 
       setSuccess(
         response.data.message ||
-          "Registration successful. Please verify your email."
+          "Registration successful! A verification email has been sent. Please check your email inbox to verify your account."
       );
 
       setFormData({
@@ -90,74 +88,88 @@ function Register() {
       <h1>Create Account</h1>
 
       {error && <p>{error}</p>}
-      {success && <p>{success}</p>}
 
-      <form onSubmit={handleSubmit}>
+      {success ? (
         <div>
-          <label htmlFor="fullName">Full Name</label>
+          <p>{success}</p>
 
-          <input
-            id="fullName"
-            name="fullName"
-            type="text"
-            placeholder="Enter your full name"
-            value={formData.fullName}
-            onChange={handleChange}
-            disabled={loading}
-          />
+          <p>
+            Check your email and click the verification link to activate
+            your account.
+          </p>
+
+          <Link to="/login">Go to Login</Link>
         </div>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="fullName">Full Name</label>
 
-        <div>
-          <label htmlFor="username">Username</label>
+            <input
+              id="fullName"
+              name="fullName"
+              type="text"
+              placeholder="Enter your full name"
+              value={formData.fullName}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
 
-          <input
-            id="username"
-            name="username"
-            type="text"
-            placeholder="Enter username"
-            value={formData.username}
-            onChange={handleChange}
-            disabled={loading}
-          />
-        </div>
+          <div>
+            <label htmlFor="username">Username</label>
 
-        <div>
-          <label htmlFor="email">Email</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              placeholder="Enter username"
+              value={formData.username}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
 
-          <input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="Enter your email"
-            value={formData.email}
-            onChange={handleChange}
-            disabled={loading}
-          />
-        </div>
+          <div>
+            <label htmlFor="email">Email</label>
 
-        <div>
-          <label htmlFor="password">Password</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
 
-          <input
-            id="password"
-            name="password"
-            type="password"
-            placeholder="Enter password"
-            value={formData.password}
-            onChange={handleChange}
-            disabled={loading}
-          />
-        </div>
+          <div>
+            <label htmlFor="password">Password</label>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Creating account..." : "Register"}
-        </button>
-      </form>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="Enter password"
+              value={formData.password}
+              onChange={handleChange}
+              disabled={loading}
+            />
+          </div>
 
-      <p>
-        Already have an account?{" "}
-        <Link to="/login">Login</Link>
-      </p>
+          <button type="submit" disabled={loading}>
+            {loading ? "Creating account..." : "Register"}
+          </button>
+        </form>
+      )}
+
+      {!success && (
+        <p>
+          Already have an account?{" "}
+          <Link to="/login">Login</Link>
+        </p>
+      )}
     </div>
   );
 }
