@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import api from "../services/api";
+import {useState} from "react";
+import {Link} from "react-router-dom";
+import api from "../../services/api";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -14,8 +14,10 @@ function Register() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const {name, value} = e.target;
 
     setFormData((prev) => ({
       ...prev,
@@ -29,7 +31,7 @@ function Register() {
     setError("");
     setSuccess("");
 
-    const { fullName, username, email, password } = formData;
+    const {fullName, username, email, password} = formData;
 
     if (!fullName.trim()) {
       setError("Please enter your full name.");
@@ -63,7 +65,7 @@ function Register() {
 
       setSuccess(
         response.data.message ||
-          "Registration successful! A verification email has been sent. Please check your email inbox to verify your account."
+          "Registration successful! A verification email has been sent. Please check your email inbox to verify your account.",
       );
 
       setFormData({
@@ -94,8 +96,8 @@ function Register() {
           <p>{success}</p>
 
           <p>
-            Check your email and click the verification link to activate
-            your account.
+            Check your email and click the verification link to activate your
+            account.
           </p>
 
           <Link to="/login">Go to Login</Link>
@@ -147,15 +149,26 @@ function Register() {
           <div>
             <label htmlFor="password">Password</label>
 
-            <input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Enter password"
-              value={formData.password}
-              onChange={handleChange}
-              disabled={loading}
-            />
+            <div className="password-wrapper">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter password"
+                value={formData.password}
+                onChange={handleChange}
+                disabled={loading}
+              />
+
+              <button
+                type="button"
+                className="password-toggle"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? "⚪" : "👁️"}
+              </button>
+            </div>
           </div>
 
           <button type="submit" disabled={loading}>
@@ -166,8 +179,7 @@ function Register() {
 
       {!success && (
         <p>
-          Already have an account?{" "}
-          <Link to="/login">Login</Link>
+          Already have an account? <Link to="/login">Login</Link>
         </p>
       )}
     </div>

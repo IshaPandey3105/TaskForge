@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import api from "../services/api";
+import api from "../../services/api";
 
 function VerifyEmail() {
   const { verificationToken } = useParams();

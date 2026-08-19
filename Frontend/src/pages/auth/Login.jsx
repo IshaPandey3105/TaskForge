@@ -1,7 +1,7 @@
-import { useState } from "react";
-import api from "../services/api";
-import useAuthStore from "../store/authStore";
-import { useNavigate, Link } from "react-router-dom";
+import {useState} from "react";
+import api from "../../services/api";
+import useAuthStore from "../../store/authStore";
+import {useNavigate, Link} from "react-router-dom";
 
 function Login() {
   const [identifier, setIdentifier] = useState("");
@@ -12,6 +12,7 @@ function Login() {
 
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,17 +55,13 @@ function Login() {
       console.log("Login successful:", user);
     } catch (error) {
       const message =
-        error.response?.data?.message ||
-        "Unable to login. Please try again.";
+        error.response?.data?.message || "Unable to login. Please try again.";
 
       setError(message);
 
       // If email is not verified,
       // redirect user to the resend verification page.
-      if (
-        message ===
-        "Please verify your email before logging in"
-      ) {
+      if (message === "Please verify your email before logging in") {
         navigate("/resend-email-verification");
       }
     } finally {
@@ -80,9 +77,7 @@ function Login() {
 
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="identifier">
-            Username or Email
-          </label>
+          <label htmlFor="identifier">Username or Email</label>
 
           <input
             id="identifier"
@@ -97,14 +92,24 @@ function Login() {
         <div>
           <label htmlFor="password">Password</label>
 
-          <input
-            id="password"
-            type="password"
-            placeholder="Enter password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
-          />
+          <div className="password-wrapper">
+            <input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+            />
+
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword((prev) => !prev)}
+            >
+              {showPassword ? "⚪" : "👁️"}
+            </button>
+          </div>
         </div>
 
         <button type="submit" disabled={loading}>
@@ -112,13 +117,10 @@ function Login() {
         </button>
 
         <p>
-          Don't have an account?{" "}
-          <Link to="/register">Register</Link>
+          Don't have an account? <Link to="/register">Register</Link>
         </p>
-
         <p>
-          Forgot your password?{" "}
-          <Link to="/forgot-password">Reset it</Link>
+          Forgot your password? <Link to="/forgot-password">Reset it</Link>
         </p>
       </form>
     </div>

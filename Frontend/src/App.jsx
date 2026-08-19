@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
-import Router from "./routes";
+import Router from "./routes/routes.jsx";
 import useAuthStore from "./store/authStore";
 
 function App() {
