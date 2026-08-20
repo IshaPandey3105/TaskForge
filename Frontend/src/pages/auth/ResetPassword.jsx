@@ -53,7 +53,7 @@ function ResetPassword() {
 
       <p>Enter your new password below.</p>
 
-      {error && <p>{error}</p>}
+      {error && <p className="auth-error">{error}</p>}
 
       {success && <p>{success}</p>}
 

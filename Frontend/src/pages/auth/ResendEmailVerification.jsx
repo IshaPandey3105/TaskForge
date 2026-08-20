@@ -58,7 +58,7 @@ function ResendEmailVerification() {
             verification link.
           </p>
 
-          {error && <p>{error}</p>}
+          {error && <p className="auth-error">{error}</p>}
 
           <form onSubmit={handleSubmit}>
             <div>

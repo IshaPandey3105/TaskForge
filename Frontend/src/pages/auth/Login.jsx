@@ -73,7 +73,7 @@ function Login() {
     <div>
       <h1>Login</h1>
 
-      {error && <p>{error}</p>}
+      {error && <p className="auth-error">{error}</p>}
 
       <form onSubmit={handleSubmit}>
         <div>
@@ -116,10 +116,11 @@ function Login() {
           {loading ? "Logging in..." : "Login"}
         </button>
 
-        <p>
+        <p className="auth-footer-link">
           Don't have an account? <Link to="/register">Register</Link>
         </p>
-        <p>
+
+        <p className="auth-footer-link">
           Forgot your password? <Link to="/forgot-password">Reset it</Link>
         </p>
       </form>

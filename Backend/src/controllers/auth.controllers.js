@@ -73,7 +73,7 @@ const registerUser = asyncHandler(async (req, res) => {
       user.username,
       `${process.env.FRONTEND_URL}/verify-email/${unHashedToken}`
     ),
-  }); 
+  });
 
   const createdUser = await User.findById(user._id).select(
     '-password -refreshToken -emailVerificationToken -emailVerificationExpiry'
@@ -109,15 +109,14 @@ const loginUser = asyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(404, 'User does not exist');
   }
-  if (!user.isEmailVerified) {
-    throw new ApiError(403, 'Please verify your email before logging in');
-  }
-
   // Compare the incoming password with hashed password
   const isPasswordValid = await user.isPasswordCorrect(password);
 
   if (!isPasswordValid) {
     throw new ApiError(401, 'Invalid user credentials');
+  }
+  if (!user.isEmailVerified) {
+    throw new ApiError(403, 'Please verify your email before logging in');
   }
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
@@ -214,11 +213,11 @@ const resendEmailVerification = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    throw new ApiError(404, "User does not exists", []);
+    throw new ApiError(404, 'User does not exists', []);
   }
 
   if (user.isEmailVerified) {
-    throw new ApiError(409, "Email is already verified!");
+    throw new ApiError(409, 'Email is already verified!');
   }
 
   const { unHashedToken, hashedToken, tokenExpiry } =
@@ -233,20 +232,16 @@ const resendEmailVerification = asyncHandler(async (req, res) => {
 
   await sendMail({
     email: user.email,
-    subject: "Please verify your email",
+    subject: 'Please verify your email',
     mailgenContent: emailVerificationMailGenContent(
       user.username,
       `${process.env.FRONTEND_URL}/verify-email/${unHashedToken}`
     ),
   });
 
-  return res.status(200).json(
-    new ApiResponse(
-      200,
-      {},
-      "Mail has been sent to your mail ID"
-    )
-  );
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, 'Mail has been sent to your mail ID'));
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {

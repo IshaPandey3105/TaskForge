@@ -89,7 +89,7 @@ function Register() {
     <div>
       <h1>Create Account</h1>
 
-      {error && <p>{error}</p>}
+      {error && <p className="auth-error">{error}</p>}
 
       {success ? (
         <div>
