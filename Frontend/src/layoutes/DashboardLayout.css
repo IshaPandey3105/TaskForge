@@ -611,6 +611,356 @@
   cursor: not-allowed;
 }
 
+/* ---------- LIGHT THEME OVERRIDES ----------
+   Applied when <html data-theme="light"> is set.
+   All pages render inside .dashboard-layout, so these cover
+   the layout shell plus every shared card surface. */
+
+[data-theme="light"] .dashboard-layout {
+  background: #f4f5f7;
+
+  color: #111827;
+}
+
+/* Sidebar */
+[data-theme="light"] .dashboard-sidebar {
+  background: #ffffff;
+
+  border-right-color: #e5e7eb;
+}
+
+[data-theme="light"] .nav-section-label {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .dashboard-nav-item {
+  color: #4b5563;
+}
+
+[data-theme="light"] .dashboard-nav-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+
+  color: #111827;
+}
+
+[data-theme="light"] .dashboard-nav-item:hover .nav-icon {
+  color: #374151;
+}
+
+[data-theme="light"] .dashboard-nav-item.logout {
+  color: #dc2626;
+}
+
+[data-theme="light"] .dashboard-nav-bottom {
+  border-top-color: #e5e7eb;
+}
+
+/* Topbar */
+[data-theme="light"] .dashboard-topbar {
+  background: #ffffff;
+
+  border-bottom-color: #e5e7eb;
+}
+
+[data-theme="light"] .topbar-title,
+[data-theme="light"] .profile-name {
+  color: #111827;
+}
+
+[data-theme="light"] .profile-role,
+[data-theme="light"] .profile-caret {
+  color: #6b7280;
+}
+
+[data-theme="light"] .topbar-profile:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Profile dropdown */
+[data-theme="light"] .profile-dropdown {
+  background: #ffffff;
+
+  border-color: #e5e7eb;
+
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .profile-dropdown-name {
+  color: #111827;
+}
+
+[data-theme="light"] .profile-dropdown-email {
+  color: #6b7280;
+}
+
+[data-theme="light"] .profile-dropdown-role {
+  background: #f9fafb;
+}
+
+[data-theme="light"] .profile-dropdown-role-label {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .profile-dropdown-role-value {
+  color: #374151;
+}
+
+[data-theme="light"] .profile-dropdown-divider {
+  background: #e5e7eb;
+}
+
+[data-theme="light"] .profile-dropdown-item {
+  color: #374151;
+}
+
+[data-theme="light"] .profile-dropdown-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+
+  color: #111827;
+}
+
+[data-theme="light"] .profile-dropdown-item.danger {
+  color: #dc2626;
+}
+
+[data-theme="light"] .profile-dropdown-icon {
+  color: #9ca3af;
+}
+
+/* Footer */
+[data-theme="light"] .dashboard-footer {
+  background: #ffffff;
+
+  border-top-color: #e5e7eb;
+
+  color: #6b7280;
+}
+
+[data-theme="light"] .dashboard-footer-sep {
+  color: #d1d5db;
+}
+
+/* Modal */
+[data-theme="light"] .modal {
+  background: #ffffff;
+
+  border-color: #e5e7eb;
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .modal h3 {
+  color: #111827;
+}
+
+[data-theme="light"] .modal-text {
+  color: #6b7280;
+}
+
+[data-theme="light"] .modal-actions button {
+  border-color: #d1d5db;
+
+  color: #374151;
+}
+
+[data-theme="light"] .modal-actions button:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Shared card surfaces (Dashboard / Projects pages) */
+[data-theme="light"] .stat-card,
+[data-theme="light"] .kanban-column,
+[data-theme="light"] .calendar,
+[data-theme="light"] .dash-calendar-detail,
+[data-theme="light"] .dash-empty,
+[data-theme="light"] .project-card,
+[data-theme="light"] .note-item,
+[data-theme="light"] .activity-item,
+[data-theme="light"] .projects-empty {
+  background: #ffffff;
+
+  border-color: #e5e7eb;
+}
+
+[data-theme="light"] .task-card {
+  background: #ffffff;
+
+  border-color: #e5e7eb;
+}
+
+/* Text colors */
+[data-theme="light"] .dash-welcome h1,
+[data-theme="light"] .dash-section-header h2,
+[data-theme="light"] .stat-value,
+[data-theme="light"] .task-card-title,
+[data-theme="light"] .calendar-title,
+[data-theme="light"] .dash-calendar-detail h3,
+[data-theme="light"] .project-card-top h3,
+[data-theme="light"] .projects-header h1,
+[data-theme="light"] .task-list td,
+[data-theme="light"] .note-content,
+[data-theme="light"] .activity-body p,
+[data-theme="light"] .dash-date-tasks li span:not(.status-dot),
+[data-theme="light"] .task-card-assignee {
+  color: #111827;
+}
+
+[data-theme="light"] .dash-welcome p strong {
+  color: #374151;
+}
+
+[data-theme="light"] .dash-welcome p,
+[data-theme="light"] .task-card-desc,
+[data-theme="light"] .project-card-desc,
+[data-theme="light"] .task-card-project,
+[data-theme="light"] .stat-label,
+[data-theme="light"] .task-list th,
+[data-theme="light"] .kanban-column-header span:last-child,
+[data-theme="light"] .project-card-meta span,
+[data-theme="light"] .projects-list td,
+[data-theme="light"] .projects-header p {
+  color: #6b7280;
+}
+
+[data-theme="light"] .task-card-date,
+[data-theme="light"] .note-meta,
+[data-theme="light"] .activity-body span,
+[data-theme="light"] .dash-date-task-project,
+[data-theme="light"] .project-card-dates span,
+[data-theme="light"] .kanban-empty {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .projects-list-desc {
+  color: #6b7280 !important;
+}
+
+[data-theme="light"] .task-list-empty {
+  color: #9ca3af;
+}
+
+/* Table borders */
+[data-theme="light"] .task-list th,
+[data-theme="light"] .task-list td,
+[data-theme="light"] .projects-list th,
+[data-theme="light"] .projects-list td {
+  border-bottom-color: #e5e7eb;
+}
+
+[data-theme="light"] .project-card-dates {
+  border-top-color: #e5e7eb;
+}
+
+/* Inputs & selects */
+[data-theme="light"] .task-card-actions select,
+[data-theme="light"] .task-list-actions select,
+[data-theme="light"] .dash-create-task select,
+[data-theme="light"] .dash-create-note select,
+[data-theme="light"] .projects-search,
+[data-theme="light"] .modal input,
+[data-theme="light"] .modal textarea {
+  background: #ffffff;
+
+  border-color: #d1d5db;
+
+  color: #111827;
+}
+
+[data-theme="light"] .projects-search::placeholder {
+  color: #9ca3af;
+}
+
+/* Secondary buttons */
+[data-theme="light"] .task-card-actions button,
+[data-theme="light"] .task-list-actions button,
+[data-theme="light"] .note-actions button,
+[data-theme="light"] .project-card-open,
+[data-theme="light"] .project-card-actions button,
+[data-theme="light"] .projects-list-actions button,
+[data-theme="light"] .calendar-nav,
+[data-theme="light"] .dash-view-toggle {
+  border-color: #d1d5db;
+
+  color: #374151;
+}
+
+[data-theme="light"] .task-card-actions button:hover,
+[data-theme="light"] .task-list-actions button:hover,
+[data-theme="light"] .note-actions button:hover,
+[data-theme="light"] .project-card-open:hover,
+[data-theme="light"] .project-card-actions button:hover,
+[data-theme="light"] .projects-list-actions button:hover,
+[data-theme="light"] .calendar-nav:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .task-card-actions button.danger,
+[data-theme="light"] .task-list-actions button.danger,
+[data-theme="light"] .note-actions button.danger,
+[data-theme="light"] .project-card-actions button.danger,
+[data-theme="light"] .projects-list-actions button.danger {
+  color: #dc2626;
+}
+
+[data-theme="light"] .task-card-actions button.danger:hover,
+[data-theme="light"] .task-list-actions button.danger:hover,
+[data-theme="light"] .note-actions button.danger:hover,
+[data-theme="light"] .project-card-actions button.danger:hover,
+[data-theme="light"] .projects-list-actions button.danger:hover {
+  background: rgba(220, 38, 38, 0.08);
+}
+
+/* ---------- COMPACT MODE OVERRIDES ----------
+   Applied when <html data-compact="true"> is set. */
+
+[data-compact="true"] .dashboard-page {
+  gap: 18px;
+}
+
+[data-compact="true"] .dashboard-content {
+  padding: 16px 20px;
+}
+
+[data-compact="true"] .dash-stats {
+  gap: 10px;
+}
+
+[data-compact="true"] .stat-card {
+  padding: 12px 14px;
+}
+
+[data-compact="true"] .stat-value {
+  font-size: 24px;
+}
+
+[data-compact="true"] .kanban-board {
+  gap: 10px;
+
+  margin-top: 10px;
+}
+
+[data-compact="true"] .kanban-column {
+  padding: 10px;
+}
+
+[data-compact="true"] .task-card {
+  padding: 10px 12px;
+}
+
+[data-compact="true"] .project-card {
+  padding: 14px;
+}
+
+[data-compact="true"] .note-item,
+[data-compact="true"] .activity-item {
+  padding: 10px 12px;
+}
+
+[data-compact="true"] .calendar,
+[data-compact="true"] .dash-calendar-detail {
+  padding: 12px;
+}
+
 /* ---------- RESPONSIVE ---------- */
 
 @media (max-width: 1100px) {
