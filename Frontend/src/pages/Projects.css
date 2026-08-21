@@ -1,0 +1,453 @@
+/* ---------- PROJECTS PAGE ---------- */
+
+.projects-page {
+  display: flex;
+  flex-direction: column;
+
+  gap: 24px;
+}
+
+.projects-error {
+  color: #e58383;
+  background: rgba(231, 21, 21, 0.1);
+  border: 1px solid rgba(231, 21, 21, 0.3);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+/* ---------- HEADER ---------- */
+
+.projects-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 16px;
+}
+
+.projects-header h1 {
+  margin: 0 0 6px;
+
+  font-size: 26px;
+  font-weight: 700;
+
+  color: #f3f4f6;
+}
+
+.projects-header p {
+  margin: 0;
+
+  font-size: 14px;
+
+  color: #9aa3b2;
+}
+
+.projects-create-btn {
+  padding: 10px 18px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+}
+
+.projects-create-btn:hover {
+  background: #3b82f6;
+}
+
+/* ---------- TOOLBAR ---------- */
+
+.projects-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+}
+
+.projects-search {
+  flex: 1;
+
+  max-width: 360px;
+
+  padding: 10px 14px;
+
+  border: 1px solid #2a3242;
+  border-radius: 10px;
+
+  background: #1a2130;
+
+  color: #e5e7eb;
+
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.projects-search::placeholder {
+  color: #6b7483;
+}
+
+.projects-search:focus {
+  border-color: #2563eb;
+
+  outline: none;
+}
+
+.projects-view-toggle {
+  display: flex;
+
+  gap: 4px;
+
+  padding: 4px;
+
+  background: #1a2130;
+
+  border: 1px solid #242b38;
+  border-radius: 10px;
+}
+
+.projects-view-toggle button {
+  padding: 7px 14px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #8b94a5;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+
+  cursor: pointer;
+}
+
+.projects-view-toggle button:hover {
+  color: #f3f4f6;
+}
+
+.projects-view-toggle button.active {
+  background: #2563eb;
+
+  color: #ffffff;
+}
+
+/* ---------- EMPTY STATE ---------- */
+
+.projects-empty {
+  padding: 32px;
+
+  background: #141b26;
+
+  border: 1px solid #242b38;
+  border-radius: 14px;
+
+  text-align: center;
+}
+
+.projects-empty p {
+  margin: 0;
+
+  font-size: 14px;
+
+  color: #8b94a5;
+}
+
+/* ---------- GRID ---------- */
+
+.projects-grid {
+  display: grid;
+
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+
+  gap: 16px;
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+
+  padding: 18px;
+
+  background: #141b26;
+
+  border: 1px solid #242b38;
+  border-radius: 14px;
+}
+
+.project-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 8px;
+}
+
+.project-card-top h3 {
+  margin: 0;
+
+  font-size: 16px;
+  font-weight: 600;
+
+  color: #f3f4f6;
+
+  overflow-wrap: anywhere;
+}
+
+.project-card-role {
+  font-size: 11px;
+  font-weight: 600;
+
+  padding: 3px 8px;
+
+  border-radius: 999px;
+
+  background: rgba(37, 99, 235, 0.15);
+
+  color: #93c5fd;
+
+  text-transform: capitalize;
+
+  white-space: nowrap;
+}
+
+.project-card-desc {
+  margin: 0;
+
+  font-size: 13px;
+
+  color: #9aa3b2;
+
+  line-height: 1.5;
+}
+
+.project-card-meta {
+  display: flex;
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+.project-card-meta span {
+  font-size: 12px;
+
+  color: #8b94a5;
+}
+
+.project-card-dates {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+
+  padding-top: 10px;
+
+  border-top: 1px solid #1e2430;
+}
+
+.project-card-dates span {
+  font-size: 12px;
+
+  color: #6b7483;
+}
+
+.project-card-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.project-card-actions button {
+  padding: 7px 12px;
+
+  border: 1px solid #2a3242;
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #c3cad6;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  cursor: pointer;
+}
+
+.project-card-actions button:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.project-card-actions button.danger {
+  color: #e58383;
+}
+
+.project-card-actions button.danger:hover {
+  background: rgba(231, 21, 21, 0.12);
+}
+
+/* ---------- LIST VIEW ---------- */
+
+.projects-list {
+  overflow-x: auto;
+}
+
+.projects-list table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  font-size: 13px;
+}
+
+.projects-list th {
+  padding: 10px 12px;
+
+  text-align: left;
+
+  font-weight: 600;
+
+  color: #8b94a5;
+
+  border-bottom: 1px solid #242b38;
+
+  white-space: nowrap;
+}
+
+.projects-list td {
+  padding: 10px 12px;
+
+  color: #e5e7eb;
+
+  border-bottom: 1px solid #1e2430;
+
+  vertical-align: middle;
+}
+
+.projects-list-desc {
+  max-width: 280px;
+
+  color: #9aa3b2 !important;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.projects-list-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  white-space: nowrap;
+}
+
+.projects-list-actions button {
+  padding: 5px 10px;
+
+  border: 1px solid #2a3242;
+  border-radius: 6px;
+
+  background: transparent;
+
+  color: #c3cad6;
+
+  font-family: inherit;
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+.projects-list-actions button:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.projects-list-actions button.danger {
+  color: #e58383;
+}
+
+.projects-list-actions button.danger:hover {
+  background: rgba(231, 21, 21, 0.12);
+}
+
+/* ---------- MODALS (Projects page) ---------- */
+
+.modal {
+  max-width: 480px;
+}
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+.modal label {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #c3cad6;
+}
+
+.modal input,
+.modal textarea {
+  padding: 10px 12px;
+
+  border: 1px solid #2a3242;
+  border-radius: 10px;
+
+  background: #1a2130;
+
+  color: #e5e7eb;
+
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.modal input:focus,
+.modal textarea:focus {
+  border-color: #2563eb;
+
+  outline: none;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 800px) {
+  .projects-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .projects-search {
+    max-width: none;
+    width: 100%;
+  }
+
+  .projects-view-toggle {
+    align-self: flex-start;
+  }
+}

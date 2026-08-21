@@ -1,0 +1,326 @@
+/* ---------- SETTINGS PAGE ---------- */
+
+.settings-page {
+  display: flex;
+  flex-direction: column;
+
+  gap: 24px;
+}
+
+.settings-header h1 {
+  margin: 0 0 6px;
+
+  font-size: 26px;
+  font-weight: 700;
+
+  color: #f3f4f6;
+}
+
+.settings-header p {
+  margin: 0;
+
+  font-size: 14px;
+
+  color: #9aa3b2;
+}
+
+.settings-layout {
+  display: grid;
+
+  grid-template-columns: 220px minmax(0, 1fr);
+
+  gap: 24px;
+
+  align-items: start;
+}
+
+/* ---------- TABS ---------- */
+
+.settings-tabs {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  padding: 8px;
+
+  background: #141b26;
+
+  border: 1px solid #242b38;
+  border-radius: 14px;
+}
+
+.settings-tabs button {
+  padding: 11px 14px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: transparent;
+
+  color: #9aa3b2;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.settings-tabs button:hover {
+  background: rgba(255, 255, 255, 0.06);
+
+  color: #f3f4f6;
+}
+
+.settings-tabs button.active {
+  background: #2563eb;
+
+  color: #ffffff;
+}
+
+/* ---------- CONTENT ---------- */
+
+.settings-content {
+  min-width: 0;
+
+  padding: 24px;
+
+  background: #141b26;
+
+  border: 1px solid #242b38;
+  border-radius: 14px;
+}
+
+.settings-saved-banner {
+  margin-bottom: 16px;
+
+  padding: 10px 14px;
+
+  background: rgba(34, 197, 94, 0.12);
+
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 10px;
+
+  color: #22c55e;
+
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
+}
+
+.settings-form h2 {
+  margin: 0;
+
+  font-size: 18px;
+  font-weight: 600;
+
+  color: #f3f4f6;
+}
+
+.settings-section-desc {
+  margin: -8px 0 0;
+
+  font-size: 13px;
+
+  color: #8b94a5;
+}
+
+.settings-form label {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #c3cad6;
+}
+
+.settings-form input[type="text"],
+.settings-form input[type="email"],
+.settings-form input[type="password"] {
+  padding: 10px 12px;
+
+  border: 1px solid #2a3242;
+  border-radius: 10px;
+
+  background: #1a2130;
+
+  color: #e5e7eb;
+
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.settings-form input:focus {
+  border-color: #2563eb;
+
+  outline: none;
+}
+
+.settings-role {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 12px 14px;
+
+  background: #1a2130;
+
+  border: 1px solid #2a3242;
+  border-radius: 10px;
+}
+
+.settings-role-label {
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #c3cad6;
+}
+
+.settings-role-value {
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #93c5fd;
+
+  text-transform: capitalize;
+}
+
+.settings-form-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-top: 4px;
+}
+
+.settings-primary-btn {
+  padding: 10px 20px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.settings-primary-btn:hover {
+  background: #3b82f6;
+}
+
+/* ---------- APPEARANCE ---------- */
+
+.settings-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.settings-field-label {
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #c3cad6;
+}
+
+.settings-options {
+  display: flex;
+
+  gap: 8px;
+}
+
+.settings-options button {
+  padding: 9px 18px;
+
+  border: 1px solid #2a3242;
+  border-radius: 10px;
+
+  background: transparent;
+
+  color: #9aa3b2;
+
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+
+  cursor: pointer;
+}
+
+.settings-options button:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.settings-options button.active {
+  background: #2563eb;
+
+  border-color: #2563eb;
+
+  color: #ffffff;
+}
+
+/* ---------- TOGGLES ---------- */
+
+.settings-toggle {
+  display: flex;
+  align-items: center;
+
+  flex-direction: row !important;
+
+  gap: 10px;
+
+  cursor: pointer;
+}
+
+.settings-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+
+  accent-color: #2563eb;
+
+  cursor: pointer;
+}
+
+.settings-toggle span {
+  font-size: 14px;
+  font-weight: 500;
+
+  color: #e5e7eb;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 800px) {
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-tabs {
+    flex-direction: row;
+
+    overflow-x: auto;
+  }
+
+  .settings-tabs button {
+    white-space: nowrap;
+  }
+}

@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 
 import Dashboard from "../pages/Dashboard";
+import DashboardLayout from "../layoutes/DashboardLayout";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AuthLayout from "../components/auth/AuthLayout";
 import authRoutes from "./auth/authRoutes";
@@ -21,7 +22,9 @@ function Router() {
       </Route>
 
       <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route element={<DashboardLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Route>
       </Route>
     </Routes>
   );
