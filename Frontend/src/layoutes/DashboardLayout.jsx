@@ -47,9 +47,9 @@ function DashboardLayout() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  },[]);
 
-  
+
   // Note: the dropdown closes automatically when clicking outside,
   // which covers nav item clicks since nav items are outside the ref.
 

@@ -70,6 +70,7 @@ function Projects() {
         }
       });
 
+      
       const [roleResults, taskResults] = await Promise.all([
         Promise.all(rolePromises),
         Promise.all(taskPromises),
