@@ -30,6 +30,7 @@ function Dashboard() {
   const [tasksByProject, setTasksByProject] = useState({});
   const [notesByProject, setNotesByProject] = useState({});
   const [rolesByProject, setRolesByProject] = useState({});
+  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
