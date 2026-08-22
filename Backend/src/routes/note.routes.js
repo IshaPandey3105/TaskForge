@@ -22,10 +22,9 @@ router
   .route('/:projectId')
   .get(validateProjectPermission(AvailableUserRoles), getNotes)
   .post(
-    validateProjectPermission([
-      UserRolesEnum.ADMIN,
-      UserRolesEnum.PROJECT_ADMIN,
-    ]),
+    // Members may create notes in projects they belong to;
+    // edit/delete remain restricted to ADMIN / PROJECT_ADMIN below.
+    validateProjectPermission(AvailableUserRoles),
     notesValidator(),
     validate,
     createNote
