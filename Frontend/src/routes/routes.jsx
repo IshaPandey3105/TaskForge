@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 
+import Activity from "../pages/Activity";
 import Dashboard from "../pages/Dashboard";
 import Members from "../pages/Members";
 import Notes from "../pages/Notes";
@@ -28,6 +29,7 @@ function Router() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
+          <Route path="/activity" element={<Activity />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/members" element={<Members />} />
           <Route path="/notes" element={<Notes />} />

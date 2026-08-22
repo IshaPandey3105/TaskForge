@@ -8,6 +8,7 @@ dotenv.config();
 const createAdmin = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
+    console.log("MONGO:", process.env.MONGO_URI);
 
     const existingAdmin = await User.findOne({
       role: UserRolesEnum.ADMIN,

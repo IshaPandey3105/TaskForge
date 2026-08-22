@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import api from "../services/api";
-import useAuthStore from "../store/authStore";
 import "./Activity.css";
 
 const TYPE_LABELS = {
@@ -16,6 +15,14 @@ const TIME_LABELS = {
   today: "Today",
   week: "This Week",
   month: "This Month",
+};
+
+const NODE_ICONS = {
+  task: "☑",
+  note: "✎",
+  project: "▤",
+  member: "◉",
+  status: "✓",
 };
 
 function getInitials(name) {
@@ -49,12 +56,17 @@ function formatRelativeTime(value) {
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d ago`;
 
-  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return d.toLocaleDateString(undefined, {month: "short", day: "numeric"});
+}
+
+function formatTime(value) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleTimeString(undefined, {hour: "numeric", minute: "2-digit"});
 }
 
 function Activity() {
-  const user = useAuthStore((state) => state.user);
-
   const [projects, setProjects] = useState([]);
   const [tasksByProject, setTasksByProject] = useState({});
   const [notesByProject, setNotesByProject] = useState({});
@@ -79,18 +91,18 @@ function Activity() {
       const taskPromises = projectList.map(async (project) => {
         try {
           const res = await api.get(`/tasks/${project._id}`);
-          return { projectId: project._id, tasks: res.data.data || [] };
+          return {projectId: project._id, tasks: res.data.data || []};
         } catch {
-          return { projectId: project._id, tasks: [] };
+          return {projectId: project._id, tasks: []};
         }
       });
 
       const notePromises = projectList.map(async (project) => {
         try {
           const res = await api.get(`/notes/${project._id}`);
-          return { projectId: project._id, notes: res.data.data || [] };
+          return {projectId: project._id, notes: res.data.data || []};
         } catch {
-          return { projectId: project._id, notes: [] };
+          return {projectId: project._id, notes: []};
         }
       });
 
@@ -102,7 +114,7 @@ function Activity() {
             members: res.data.data || [],
           };
         } catch {
-          return { projectId: project._id, members: [] };
+          return {projectId: project._id, members: []};
         }
       });
 
@@ -155,7 +167,7 @@ function Activity() {
 
     const items = [];
 
-    // Task activity: creation, updates and completions.
+    // Task activity: creation, updates and status completions.
     Object.entries(tasksByProject).forEach(([projectId, tasks]) => {
       const project = projectMap[projectId];
       tasks.forEach((task) => {
@@ -295,44 +307,8 @@ function Activity() {
       });
     });
 
-    return items.sort(
-      (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-    );
+    return items.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
   }, [projects, tasksByProject, notesByProject, membershipsByProject]);
-
-  // ---- Stats ----
-
-  const stats = useMemo(() => {
-    return {
-      total: activities.length,
-      task: activities.filter((a) => a.type === "task").length,
-      project: activities.filter((a) => a.type === "project").length,
-      note: activities.filter((a) => a.type === "note").length,
-      member: activities.filter((a) => a.type === "member").length,
-    };
-  }, [activities]);
-
-  const summary = useMemo(() => {
-    const projectCounts = {};
-    activities.forEach((a) => {
-      if (a.projectName) {
-        projectCounts[a.projectName] = (projectCounts[a.projectName] || 0) + 1;
-      }
-    });
-
-    const mostActive =
-      Object.entries(projectCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
-
-    const myCount = activities.filter(
-      (a) => a.actor?.id && a.actor.id === user?._id
-    ).length;
-
-    return {
-      mostActiveProject: mostActive,
-      latest: activities[0] ? formatRelativeTime(activities[0].timestamp) : null,
-      myCount,
-    };
-  }, [activities, user?._id]);
 
   // ---- Filtering ----
 
@@ -365,16 +341,99 @@ function Activity() {
           a.itemTitle?.toLowerCase().includes(q) ||
           a.projectName?.toLowerCase().includes(q) ||
           a.actor?.name?.toLowerCase().includes(q) ||
-          a.action?.toLowerCase().includes(q)
+          a.action?.toLowerCase().includes(q),
       );
     }
 
     return list;
   }, [activities, typeFilter, timeFilter, search]);
 
+  // ---- Day grouping (Today / Yesterday / This Week / Earlier) ----
+
+  const groupedActivities = useMemo(() => {
+    const groups = {
+      Today: [],
+      Yesterday: [],
+      "This Week": [],
+      Earlier: [],
+    };
+
+    const now = new Date();
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+    const startOfYesterday = new Date(startOfToday.getTime() - 86400000);
+    const startOfWeek = new Date(startOfToday.getTime() - 6 * 86400000);
+
+    filteredActivities.forEach((item) => {
+      const d = new Date(item.timestamp);
+
+      if (d >= startOfToday) {
+        groups.Today.push(item);
+      } else if (d >= startOfYesterday) {
+        groups.Yesterday.push(item);
+      } else if (d >= startOfWeek) {
+        groups["This Week"].push(item);
+      } else {
+        groups.Earlier.push(item);
+      }
+    });
+
+    return ["Today", "Yesterday", "This Week", "Earlier"]
+      .map((label) => ({label, items: groups[label]}))
+      .filter((group) => group.items.length > 0);
+  }, [filteredActivities]);
+
+  // ---- Workspace Pulse ----
+
+  const pulse = useMemo(() => {
+    const now = new Date();
+    const startOfToday = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+    const startOfWeek = new Date(startOfToday.getTime() - 6 * 86400000);
+
+    const todayCount = activities.filter(
+      (a) => new Date(a.timestamp) >= startOfToday,
+    ).length;
+    const weekCount = activities.filter(
+      (a) => new Date(a.timestamp) >= startOfWeek,
+    ).length;
+
+    const projectCounts = {};
+    const memberCounts = {};
+    activities.forEach((a) => {
+      if (a.projectName) {
+        projectCounts[a.projectName] = (projectCounts[a.projectName] || 0) + 1;
+      }
+      if (a.actor?.name) {
+        memberCounts[a.actor.name] = (memberCounts[a.actor.name] || 0) + 1;
+      }
+    });
+
+    const mostActiveProject =
+      Object.entries(projectCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+    const mostActiveMember =
+      Object.entries(memberCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+
+    return {
+      todayCount,
+      weekCount,
+      recent: activities.slice(0, 3),
+      mostActiveProject,
+      mostActiveMember,
+    };
+  }, [activities]);
+
   const renderAvatar = (actor, className) => {
     if (actor?.avatarUrl) {
-      return <img className={className} src={actor.avatarUrl} alt={actor.name} />;
+      return (
+        <img className={className} src={actor.avatarUrl} alt={actor.name} />
+      );
     }
 
     return (
@@ -463,76 +522,14 @@ function Activity() {
         <div>
           <h1>Activity</h1>
           <p>
-            A live feed of everything happening across your projects and team.
+            A chronological stream of everything happening across your
+            workspace.
           </p>
         </div>
       </div>
 
-      {/* Activity Overview */}
-      <section className="activity-overview">
-        <button
-          type="button"
-          className={`overview-stat glass total${typeFilter === "all" ? " active" : ""}`}
-          onClick={() => setTypeFilter("all")}
-        >
-          <span className="overview-icon">◈</span>
-          <span className="overview-text">
-            <span className="overview-value">{stats.total}</span>
-            <span className="overview-label">Total Events</span>
-          </span>
-        </button>
-
-        <button
-          type="button"
-          className={`overview-stat glass task${typeFilter === "task" ? " active" : ""}`}
-          onClick={() => setTypeFilter("task")}
-        >
-          <span className="overview-icon">☑</span>
-          <span className="overview-text">
-            <span className="overview-value">{stats.task}</span>
-            <span className="overview-label">Tasks</span>
-          </span>
-        </button>
-
-        <button
-          type="button"
-          className={`overview-stat glass project${typeFilter === "project" ? " active" : ""}`}
-          onClick={() => setTypeFilter("project")}
-        >
-          <span className="overview-icon">▤</span>
-          <span className="overview-text">
-            <span className="overview-value">{stats.project}</span>
-            <span className="overview-label">Projects</span>
-          </span>
-        </button>
-
-        <button
-          type="button"
-          className={`overview-stat glass note${typeFilter === "note" ? " active" : ""}`}
-          onClick={() => setTypeFilter("note")}
-        >
-          <span className="overview-icon">✎</span>
-          <span className="overview-text">
-            <span className="overview-value">{stats.note}</span>
-            <span className="overview-label">Notes</span>
-          </span>
-        </button>
-
-        <button
-          type="button"
-          className={`overview-stat glass member${typeFilter === "member" ? " active" : ""}`}
-          onClick={() => setTypeFilter("member")}
-        >
-          <span className="overview-icon">◉</span>
-          <span className="overview-text">
-            <span className="overview-value">{stats.member}</span>
-            <span className="overview-label">Members</span>
-          </span>
-        </button>
-      </section>
-
       <div className="activity-layout">
-        {/* Main feed */}
+        {/* Main timeline stream */}
         <div className="activity-main">
           {/* Toolbar */}
           <div className="activity-toolbar">
@@ -570,15 +567,15 @@ function Activity() {
             </select>
           </div>
 
-          {/* Timeline */}
+          {/* Grouped timeline */}
           {activities.length === 0 ? (
             <div className="activity-empty glass">
               <div className="activity-empty-icon">⬡</div>
               <h2>No activity yet</h2>
               <p>
                 Activity appears here as your team creates tasks, writes notes,
-                builds projects and adds members. Start working in your
-                projects to see this feed come alive.
+                builds projects and adds members. Start working in your projects
+                to see this stream come alive.
               </p>
             </div>
           ) : filteredActivities.length === 0 ? (
@@ -586,102 +583,128 @@ function Activity() {
               <p>No activity matches your filters.</p>
             </div>
           ) : (
-            <div className="activity-feed glass">
-              <ul className="timeline">
-                {filteredActivities.map((item) => (
-                  <li key={item.id} className={`timeline-item ${item.type}`}>
-                    <span className="timeline-node">
-                      {{ task: "☑", note: "✎", project: "▤", member: "◉" }[
-                        item.type
-                      ]}
+            <div className="activity-stream">
+              {groupedActivities.map((group) => (
+                <section key={group.label} className="stream-group">
+                  <div className="stream-group-head">
+                    <span className="stream-group-label">{group.label}</span>
+                    <span className="stream-group-count">
+                      {group.items.length}
                     </span>
+                    <span className="stream-group-rule" />
+                  </div>
 
-                    <div className="timeline-body">
-                      <div className="timeline-top">
-                        {renderAvatar(item.actor, "timeline-avatar")}
+                  <ul className="timeline">
+                    {group.items.map((item) => {
+                      const isStatus = item.action === "completed";
+                      const nodeClass = isStatus ? "status" : item.type;
+                      const nodeIcon = isStatus
+                        ? NODE_ICONS.status
+                        : NODE_ICONS[item.type];
 
-                        <p className="timeline-text">
-                          {renderActionText(item)}
-                        </p>
+                      return (
+                        <li
+                          key={item.id}
+                          className={`timeline-item ${nodeClass}`}
+                        >
+                          <span className="timeline-node">{nodeIcon}</span>
 
-                        <span className="timeline-time">
-                          {formatRelativeTime(item.timestamp)}
-                        </span>
-                      </div>
+                          <div className="timeline-body">
+                            <div className="timeline-row">
+                              {renderAvatar(item.actor, "timeline-avatar")}
 
-                      <div className="timeline-meta">
-                        <span className={`type-chip ${item.type}`}>
-                          {TYPE_LABELS[item.type]}
-                        </span>
-                        {item.projectName && (
-                          <span className="project-chip">
-                            {item.projectName}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                              <p className="timeline-text">
+                                {renderActionText(item)}
+                              </p>
+
+                              <span className="timeline-time">
+                                {formatTime(item.timestamp)}
+                              </span>
+                            </div>
+
+                            <div className="timeline-sub">
+                              {item.projectName && (
+                                <span className="project-chip">
+                                  {item.projectName}
+                                </span>
+                              )}
+                              <span className="timeline-relative">
+                                {formatRelativeTime(item.timestamp)}
+                              </span>
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </section>
+              ))}
             </div>
           )}
         </div>
 
-        {/* Summary side panel */}
-        <aside className="activity-summary">
-          <h2>Activity Summary</h2>
+        {/* Workspace Pulse side panel */}
+        <aside className="workspace-pulse">
+          <div className="pulse-head">
+            <span className="pulse-live-dot" />
+            <h2>Workspace Pulse</h2>
+          </div>
 
-          <div className="summary-cards">
-            <div className="summary-card glass task">
-              <span className="summary-icon">☑</span>
-              <div className="summary-info">
-                <span className="summary-value">{stats.task}</span>
-                <span className="summary-label">Task Events</span>
-              </div>
+          <div className="pulse-live glass">
+            <div className="pulse-live-row">
+              <span className="pulse-dot today" />
+              <span className="pulse-live-label">Events today</span>
+              <b className="pulse-live-value">{pulse.todayCount}</b>
             </div>
 
-            <div className="summary-card glass note">
-              <span className="summary-icon">✎</span>
-              <div className="summary-info">
-                <span className="summary-value">{stats.note}</span>
-                <span className="summary-label">Note Events</span>
-              </div>
-            </div>
-
-            <div className="summary-card glass project">
-              <span className="summary-icon">▤</span>
-              <div className="summary-info">
-                <span className="summary-value">{stats.project}</span>
-                <span className="summary-label">Project Events</span>
-              </div>
-            </div>
-
-            <div className="summary-card glass member">
-              <span className="summary-icon">◉</span>
-              <div className="summary-info">
-                <span className="summary-value">{stats.member}</span>
-                <span className="summary-label">Member Events</span>
-              </div>
+            <div className="pulse-live-row">
+              <span className="pulse-dot week" />
+              <span className="pulse-live-label">This week</span>
+              <b className="pulse-live-value">{pulse.weekCount}</b>
             </div>
           </div>
 
-          <div className="summary-block glass">
-            <span className="summary-block-label">Most Active Project</span>
-            <span className="summary-block-value">
-              {summary.mostActiveProject || "—"}
-            </span>
+          <div className="pulse-section">
+            <span className="pulse-label">Recent Changes</span>
+
+            {pulse.recent.length === 0 ? (
+              <p className="pulse-empty">No recent changes.</p>
+            ) : (
+              <ul className="pulse-recent">
+                {pulse.recent.map((item) => (
+                  <li key={item.id}>
+                    <span
+                      className={`pulse-recent-dot ${
+                        item.action === "completed" ? "status" : item.type
+                      }`}
+                    />
+                    <span className="pulse-recent-text">
+                      <b>{item.actor?.name || "Someone"}</b> {item.action}
+                      {item.itemTitle ? ` "${item.itemTitle}"` : ""}
+                    </span>
+                    <span className="pulse-recent-time">
+                      {formatRelativeTime(item.timestamp)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
 
-          <div className="summary-block glass">
-            <span className="summary-block-label">Latest Activity</span>
-            <span className="summary-block-value">
-              {summary.latest || "—"}
-            </span>
-          </div>
+          <div className="pulse-facts">
+            <div className="pulse-fact glass">
+              <span className="pulse-fact-label">Most Active Project</span>
+              <span className="pulse-fact-value">
+                {pulse.mostActiveProject || "—"}
+              </span>
+            </div>
 
-          <div className="summary-block glass">
-            <span className="summary-block-label">Your Actions</span>
-            <span className="summary-block-value">{summary.myCount}</span>
+            <div className="pulse-fact glass">
+              <span className="pulse-fact-label">Most Active Member</span>
+              <span className="pulse-fact-value">
+                {pulse.mostActiveMember || "—"}
+              </span>
+            </div>
           </div>
         </aside>
       </div>
