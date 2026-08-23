@@ -1,18 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import api from "../services/api";
-import useAuthStore from "../store/authStore";
-import "./Projects.css";
+import api from "../../services/api";
+import useAuthStore from "../../store/authStore";
+import formatDate from "../../utils/formatDate";
+import "../../layoutes/Projects.css";
 
-function formatDate(value) {
-  if (!value) return null;
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
+import ProjectToolbar from "./ProjectToolbar";
+import ProjectCard from "./ProjectCard";
+import ProjectModal from "./ProjectModal";
+import ProjectDeleteModal from "./ProjectDeleteModal";
 
 function Projects() {
   const user = useAuthStore((state) => state.user);
@@ -70,7 +65,7 @@ function Projects() {
         }
       });
 
-      
+
       const [roleResults, taskResults] = await Promise.all([
         Promise.all(rolePromises),
         Promise.all(taskPromises),
@@ -223,32 +218,12 @@ function Projects() {
         )}
       </div>
 
-      <div className="projects-toolbar">
-        <input
-          type="text"
-          className="projects-search"
-          placeholder="Search projects..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-
-        <div className="projects-view-toggle">
-          <button
-            type="button"
-            className={viewMode === "grid" ? "active" : ""}
-            onClick={() => setViewMode("grid")}
-          >
-            Grid
-          </button>
-          <button
-            type="button"
-            className={viewMode === "list" ? "active" : ""}
-            onClick={() => setViewMode("list")}
-          >
-            List
-          </button>
-        </div>
-      </div>
+      <ProjectToolbar
+        search={search}
+        onSearchChange={setSearch}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+      />
 
       {filteredProjects.length === 0 ? (
         <div className="projects-empty">
@@ -260,55 +235,22 @@ function Projects() {
         </div>
       ) : viewMode === "grid" ? (
         <div className="projects-grid">
-          {filteredProjects.map((project) => {
-            const role = rolesByProject[project._id] || "member";
-            const memberCount = (membersByProject[project._id] || []).length;
-            const taskCount = (tasksByProject[project._id] || []).length;
-            const doneCount = (tasksByProject[project._id] || []).filter(
-              (t) => t.status === "done"
-            ).length;
-
-            return (
-              <div key={project._id} className="project-card">
-                <div className="project-card-top">
-                  <h3>{project.name}</h3>
-                  <span className="project-card-role">{role}</span>
-                </div>
-
-                {project.description && (
-                  <p className="project-card-desc">{project.description}</p>
-                )}
-
-                <div className="project-card-meta">
-                  <span>{memberCount} members</span>
-                  <span>{taskCount} tasks</span>
-                  <span>{doneCount} done</span>
-                </div>
-
-                <div className="project-card-dates">
-                  <span>Created {formatDate(project.createdAt)}</span>
-                  <span>Updated {formatDate(project.updatedAt)}</span>
-                </div>
-
-                <div className="project-card-actions">
-                  {canManageProject(project) && (
-                    <button type="button" onClick={() => openEdit(project)}>
-                      Edit
-                    </button>
-                  )}
-                  {canDeleteProject(project) && (
-                    <button
-                      type="button"
-                      className="danger"
-                      onClick={() => openDelete(project)}
-                    >
-                      Delete
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+          {filteredProjects.map((project) => (
+            <ProjectCard
+              key={project._id}
+              project={project}
+              role={rolesByProject[project._id] || "member"}
+              memberCount={(membersByProject[project._id] || []).length}
+              taskCount={(tasksByProject[project._id] || []).length}
+              doneCount={(tasksByProject[project._id] || []).filter(
+                (t) => t.status === "done"
+              ).length}
+              canManage={canManageProject(project)}
+              canDelete={canDeleteProject(project)}
+              onEdit={() => openEdit(project)}
+              onDelete={() => openDelete(project)}
+            />
+          ))}
         </div>
       ) : (
         <div className="projects-list">
@@ -367,81 +309,24 @@ function Projects() {
       )}
 
       {/* Create/Edit modal */}
-      {modal && modal.mode !== "delete" && (
-        <div className="modal-overlay" onClick={() => setModal(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>{modal.mode === "create" ? "New Project" : "Edit Project"}</h3>
-
-            {modalError && <p className="modal-error">{modalError}</p>}
-
-            <form onSubmit={handleSubmit}>
-              <label>
-                Name
-                <input
-                  type="text"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Project name"
-                />
-              </label>
-
-              <label>
-                Description
-                <textarea
-                  value={form.description}
-                  onChange={(e) =>
-                    setForm({ ...form, description: e.target.value })
-                  }
-                  placeholder="Project description"
-                  rows="3"
-                />
-              </label>
-
-              <div className="modal-actions">
-                <button type="button" onClick={() => setModal(null)}>
-                  Cancel
-                </button>
-                <button type="submit" disabled={saving}>
-                  {saving
-                    ? "Saving..."
-                    : modal.mode === "create"
-                      ? "Create Project"
-                      : "Save Changes"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <ProjectModal
+        modal={modal}
+        form={form}
+        onFormChange={setForm}
+        error={modalError}
+        saving={saving}
+        onClose={() => setModal(null)}
+        onSubmit={handleSubmit}
+      />
 
       {/* Delete confirmation modal */}
-      {modal && modal.mode === "delete" && (
-        <div className="modal-overlay" onClick={() => setModal(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Delete Project?</h3>
-            <p className="modal-text">
-              This will permanently delete "{modal.project.name}" and all its
-              memberships. This action cannot be undone.
-            </p>
-
-            {modalError && <p className="modal-error">{modalError}</p>}
-
-            <div className="modal-actions">
-              <button type="button" onClick={() => setModal(null)} disabled={saving}>
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="modal-danger"
-                onClick={handleDelete}
-                disabled={saving}
-              >
-                {saving ? "Deleting..." : "Delete Project"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ProjectDeleteModal
+        modal={modal}
+        error={modalError}
+        saving={saving}
+        onClose={() => setModal(null)}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }

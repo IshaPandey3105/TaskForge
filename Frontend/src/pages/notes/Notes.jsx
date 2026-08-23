@@ -1,19 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../services/api";
-import useAuthStore from "../store/authStore";
-import "./Notes.css";
+import api from "../../services/api";
+import useAuthStore from "../../store/authStore";
+import formatDate from "../../utils/formatDate";
+import "../../layoutes/Notes.css";
 
-function formatDate(value) {
-  if (!value) return null;
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
+import NotesToolbar from "./NotesToolbar";
+import NoteCard from "./NoteCard";
+import NoteModal from "./NoteModal";
+import NoteDetails from "./NoteDetails";
+import NoteDeleteModal from "./NoteDeleteModal";
 
 function Notes() {
   const user = useAuthStore((state) => state.user);
@@ -282,54 +278,17 @@ function Notes() {
       </div>
 
       {/* Toolbar */}
-      <div className="notes-toolbar">
-        <input
-          type="text"
-          className="notes-search"
-          placeholder="Search notes..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-
-        <select
-          className="notes-filter"
-          value={projectFilter}
-          onChange={(e) => setProjectFilter(e.target.value)}
-        >
-          <option value="all">All Projects</option>
-          {projects.map((p) => (
-            <option key={p._id} value={p._id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          className="notes-filter"
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-        >
-          <option value="recent">Newest First</option>
-          <option value="oldest">Oldest First</option>
-        </select>
-
-        <div className="notes-view-toggle">
-          <button
-            type="button"
-            className={viewMode === "grid" ? "active" : ""}
-            onClick={() => setViewMode("grid")}
-          >
-            Grid
-          </button>
-          <button
-            type="button"
-            className={viewMode === "list" ? "active" : ""}
-            onClick={() => setViewMode("list")}
-          >
-            List
-          </button>
-        </div>
-      </div>
+      <NotesToolbar
+        search={search}
+        onSearchChange={setSearch}
+        projectFilter={projectFilter}
+        onProjectFilterChange={setProjectFilter}
+        sortBy={sortBy}
+        onSortByChange={setSortBy}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        projects={projects}
+      />
 
       {/* Content */}
       {projects.length === 0 ? (
@@ -360,59 +319,17 @@ function Notes() {
       ) : viewMode === "grid" ? (
         <div className="notes-grid">
           {filteredNotes.map((note) => (
-            <div
+            <NoteCard
               key={note._id}
-              className="note-card clickable"
-              onClick={() => openDetails(note)}
-            >
-              <p className="note-card-content">{note.content}</p>
-
-              <div className="note-card-meta">
-                <span className="note-card-project">
-                  {note.project?.name || "No project"}
-                </span>
-                <span className="note-card-creator">
-                  {note.createdBy?.fullName ||
-                    note.createdBy?.username ||
-                    "Unknown"}
-                </span>
-              </div>
-
-              <div className="note-card-dates">
-                <span>Created {formatDate(note.createdAt)}</span>
-                {note.updatedAt && note.updatedAt !== note.createdAt && (
-                  <span>Updated {formatDate(note.updatedAt)}</span>
-                )}
-              </div>
-
-              {canManageProject(note.project?._id) && (
-                <div
-                  className="note-card-actions"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openEdit(note);
-                    }}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    type="button"
-                    className="danger"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setDeleteError("");
-                      setDeleteModal({ note });
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
-            </div>
+              note={note}
+              canManage={canManageProject(note.project?._id)}
+              onOpenDetails={openDetails}
+              onEdit={openEdit}
+              onRequestDelete={(n) => {
+                setDeleteError("");
+                setDeleteModal({ note: n });
+              }}
+            />
           ))}
         </div>
       ) : (
@@ -483,161 +400,38 @@ function Notes() {
       )}
 
       {/* Create / Edit modal */}
-      {noteModal && (
-        <div className="modal-overlay" onClick={() => setNoteModal(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>{noteModal.mode === "create" ? "New Note" : "Edit Note"}</h3>
-
-            {modalError && <p className="modal-error">{modalError}</p>}
-
-            <form onSubmit={handleSubmit}>
-              {noteModal.mode === "create" && (
-                <label>
-                  Project
-                  <select
-                    value={form.projectId}
-                    onChange={(e) =>
-                      setForm({ ...form, projectId: e.target.value })
-                    }
-                  >
-                    <option value="">Select project...</option>
-                    {projects.map((p) => (
-                      <option key={p._id} value={p._id}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              )}
-
-              <label>
-                Content
-                <textarea
-                  value={form.content}
-                  onChange={(e) =>
-                    setForm({ ...form, content: e.target.value })
-                  }
-                  placeholder="Write your note..."
-                  rows="6"
-                />
-              </label>
-
-              <div className="modal-actions">
-                <button type="button" onClick={() => setNoteModal(null)}>
-                  Cancel
-                </button>
-                <button type="submit" disabled={saving}>
-                  {saving
-                    ? "Saving..."
-                    : noteModal.mode === "create"
-                      ? "Create Note"
-                      : "Save Changes"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <NoteModal
+        modal={noteModal}
+        form={form}
+        onFormChange={setForm}
+        error={modalError}
+        saving={saving}
+        onClose={() => setNoteModal(null)}
+        onSubmit={handleSubmit}
+        projects={projects}
+      />
 
       {/* Details modal */}
-      {detailModal && (
-        <div className="modal-overlay" onClick={() => setDetailModal(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Note</h3>
-
-            <div className="note-detail-content">
-              <p>{detailModal.note.content}</p>
-            </div>
-
-            <div className="note-detail-grid">
-              <div className="note-detail-row">
-                <span className="note-detail-label">Project</span>
-                <span className="note-detail-value">
-                  {detailModal.note.project?.name || "—"}
-                </span>
-              </div>
-
-              <div className="note-detail-row">
-                <span className="note-detail-label">Created By</span>
-                <span className="note-detail-value">
-                  {detailModal.note.createdBy?.fullName ||
-                    detailModal.note.createdBy?.username ||
-                    "—"}
-                </span>
-              </div>
-
-              <div className="note-detail-row">
-                <span className="note-detail-label">Created</span>
-                <span className="note-detail-value">
-                  {formatDate(detailModal.note.createdAt) || "—"}
-                </span>
-              </div>
-
-              <div className="note-detail-row">
-                <span className="note-detail-label">Updated</span>
-                <span className="note-detail-value">
-                  {formatDate(detailModal.note.updatedAt) || "—"}
-                </span>
-              </div>
-            </div>
-
-            <div className="modal-actions">
-              <button type="button" onClick={() => setDetailModal(null)}>
-                Close
-              </button>
-              {canManageProject(detailModal.note.project?._id) && (
-                <button
-                  type="button"
-                  className="modal-primary"
-                  onClick={() => {
-                    const note = detailModal.note;
-                    setDetailModal(null);
-                    openEdit(note);
-                  }}
-                >
-                  Edit Note
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <NoteDetails
+        modal={detailModal}
+        canManage={
+          detailModal ? canManageProject(detailModal.note.project?._id) : false
+        }
+        onClose={() => setDetailModal(null)}
+        onEdit={(note) => {
+          setDetailModal(null);
+          openEdit(note);
+        }}
+      />
 
       {/* Delete confirmation modal */}
-      {deleteModal && (
-        <div
-          className="modal-overlay"
-          onClick={() => !deleting && setDeleteModal(null)}
-        >
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Delete Note?</h3>
-            <p className="modal-text">
-              This will permanently delete this note from "
-              {deleteModal.note.project?.name}". This action cannot be undone.
-            </p>
-
-            {deleteError && <p className="modal-error">{deleteError}</p>}
-
-            <div className="modal-actions">
-              <button
-                type="button"
-                onClick={() => setDeleteModal(null)}
-                disabled={deleting}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="modal-danger"
-                onClick={handleDelete}
-                disabled={deleting}
-              >
-                {deleting ? "Deleting..." : "Delete Note"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <NoteDeleteModal
+        modal={deleteModal}
+        deleting={deleting}
+        error={deleteError}
+        onClose={() => setDeleteModal(null)}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }

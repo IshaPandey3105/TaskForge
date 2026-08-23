@@ -1,16 +1,28 @@
 import { Routes, Route } from "react-router-dom";
 
-import Activity from "../pages/Activity";
-import Dashboard from "../pages/Dashboard";
-import Members from "../pages/Members";
-import Notes from "../pages/Notes";
-import Projects from "../pages/Projects";
-import Settings from "../pages/Settings";
-import Tasks from "../pages/Tasks";
 import DashboardLayout from "../layoutes/DashboardLayout";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AuthLayout from "../components/auth/AuthLayout";
+
 import authRoutes from "./auth/authRoutes";
+import dashboardRoutes from "./dashboard/dashboardRoutes";
+import projectRoutes from "./projects/projectRoutes";
+import taskRoutes from "./tasks/taskRoutes";
+import noteRoutes from "./notes/noteRoutes";
+import memberRoutes from "./members/memberRoutes";
+import activityRoutes from "./activity/activityRoutes";
+import settingsRoutes from "./settings/settingsRoutes";
+
+// All dashboard feature routes share the same layout + protection wrapper.
+const dashboardFeatureRoutes = [
+  ...dashboardRoutes,
+  ...projectRoutes,
+  ...taskRoutes,
+  ...noteRoutes,
+  ...memberRoutes,
+  ...activityRoutes,
+  ...settingsRoutes,
+];
 
 function Router() {
   return (
@@ -29,13 +41,13 @@ function Router() {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
-          <Route path="/activity" element={<Activity />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/members" element={<Members />} />
-          <Route path="/notes" element={<Notes />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/tasks" element={<Tasks />} />
-          <Route path="/settings" element={<Settings />} />
+          {dashboardFeatureRoutes.map((route) => (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={route.element}
+            />
+          ))}
         </Route>
       </Route>
     </Routes>

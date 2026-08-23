@@ -1,69 +1,13 @@
-import {useCallback, useEffect, useMemo, useState} from "react";
-import api from "../services/api";
-import "./Activity.css";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import api from "../../services/api";
+import "../../layoutes/Activity.css";
 
-const TYPE_LABELS = {
-  all: "All",
-  task: "Tasks",
-  project: "Projects",
-  note: "Notes",
-  member: "Members",
-};
-
-const TIME_LABELS = {
-  all: "All Time",
-  today: "Today",
-  week: "This Week",
-  month: "This Month",
-};
-
-const NODE_ICONS = {
-  task: "☑",
-  note: "✎",
-  project: "▤",
-  member: "◉",
-  status: "✓",
-};
-
-function getInitials(name) {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
+import ActivityToolbar from "./ActivityToolbar";
+import ActivityTimeline from "./ActivityTimeline";
+import WorkspacePulse from "./WorkspacePulse";
 
 function cleanAvatar(url) {
   return url && !url.includes("placehold.co") ? url : null;
-}
-
-function formatRelativeTime(value) {
-  if (!value) return "";
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return "";
-
-  const diffMs = Date.now() - d.getTime();
-  const mins = Math.floor(diffMs / 60000);
-
-  if (mins < 1) return "Just now";
-  if (mins < 60) return `${mins}m ago`;
-
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-
-  return d.toLocaleDateString(undefined, {month: "short", day: "numeric"});
-}
-
-function formatTime(value) {
-  if (!value) return "";
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toLocaleTimeString(undefined, {hour: "numeric", minute: "2-digit"});
 }
 
 function Activity() {
@@ -91,18 +35,18 @@ function Activity() {
       const taskPromises = projectList.map(async (project) => {
         try {
           const res = await api.get(`/tasks/${project._id}`);
-          return {projectId: project._id, tasks: res.data.data || []};
+          return { projectId: project._id, tasks: res.data.data || [] };
         } catch {
-          return {projectId: project._id, tasks: []};
+          return { projectId: project._id, tasks: [] };
         }
       });
 
       const notePromises = projectList.map(async (project) => {
         try {
           const res = await api.get(`/notes/${project._id}`);
-          return {projectId: project._id, notes: res.data.data || []};
+          return { projectId: project._id, notes: res.data.data || [] };
         } catch {
-          return {projectId: project._id, notes: []};
+          return { projectId: project._id, notes: [] };
         }
       });
 
@@ -114,7 +58,7 @@ function Activity() {
             members: res.data.data || [],
           };
         } catch {
-          return {projectId: project._id, members: []};
+          return { projectId: project._id, members: [] };
         }
       });
 
@@ -382,7 +326,7 @@ function Activity() {
     });
 
     return ["Today", "Yesterday", "This Week", "Earlier"]
-      .map((label) => ({label, items: groups[label]}))
+      .map((label) => ({ label, items: groups[label] }))
       .filter((group) => group.items.length > 0);
   }, [filteredActivities]);
 
@@ -429,79 +373,6 @@ function Activity() {
     };
   }, [activities]);
 
-  const renderAvatar = (actor, className) => {
-    if (actor?.avatarUrl) {
-      return (
-        <img className={className} src={actor.avatarUrl} alt={actor.name} />
-      );
-    }
-
-    return (
-      <span className={`${className} fallback`}>
-        {getInitials(actor?.name)}
-      </span>
-    );
-  };
-
-  const renderActionText = (item) => {
-    const actorName = item.actor?.name || "Someone";
-
-    switch (`${item.type}-${item.action}`) {
-      case "task-created":
-        return (
-          <>
-            <b>{actorName}</b> created task{" "}
-            <span className="activity-item-name">"{item.itemTitle}"</span>
-          </>
-        );
-      case "task-updated":
-        return (
-          <>
-            <b>{actorName}</b> updated task{" "}
-            <span className="activity-item-name">"{item.itemTitle}"</span>
-          </>
-        );
-      case "task-completed":
-        return (
-          <>
-            <b>{actorName}</b> completed task{" "}
-            <span className="activity-item-name">"{item.itemTitle}"</span>
-          </>
-        );
-      case "note-created":
-        return (
-          <>
-            <b>{actorName}</b> added a note
-          </>
-        );
-      case "note-updated":
-        return (
-          <>
-            <b>{actorName}</b> updated a note
-          </>
-        );
-      case "project-created":
-        return (
-          <>
-            <b>{actorName}</b> created the project{" "}
-            <span className="activity-item-name">{item.projectName}</span>
-          </>
-        );
-      case "member-joined":
-        return (
-          <>
-            <b>{actorName}</b> joined the project
-          </>
-        );
-      default:
-        return (
-          <>
-            <b>{actorName}</b> {item.action}
-          </>
-        );
-    }
-  };
-
   if (loading) {
     return <div className="activity-page">Loading activity...</div>;
   }
@@ -532,40 +403,14 @@ function Activity() {
         {/* Main timeline stream */}
         <div className="activity-main">
           {/* Toolbar */}
-          <div className="activity-toolbar">
-            <div className="activity-chips">
-              {Object.keys(TYPE_LABELS).map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  className={typeFilter === key ? "active" : ""}
-                  onClick={() => setTypeFilter(key)}
-                >
-                  {TYPE_LABELS[key]}
-                </button>
-              ))}
-            </div>
-
-            <input
-              type="text"
-              className="activity-search"
-              placeholder="Search activity..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-
-            <select
-              className="activity-time-filter"
-              value={timeFilter}
-              onChange={(e) => setTimeFilter(e.target.value)}
-            >
-              {Object.keys(TIME_LABELS).map((key) => (
-                <option key={key} value={key}>
-                  {TIME_LABELS[key]}
-                </option>
-              ))}
-            </select>
-          </div>
+          <ActivityToolbar
+            typeFilter={typeFilter}
+            onTypeFilterChange={setTypeFilter}
+            search={search}
+            onSearchChange={setSearch}
+            timeFilter={timeFilter}
+            onTimeFilterChange={setTimeFilter}
+          />
 
           {/* Grouped timeline */}
           {activities.length === 0 ? (
@@ -583,130 +428,12 @@ function Activity() {
               <p>No activity matches your filters.</p>
             </div>
           ) : (
-            <div className="activity-stream">
-              {groupedActivities.map((group) => (
-                <section key={group.label} className="stream-group">
-                  <div className="stream-group-head">
-                    <span className="stream-group-label">{group.label}</span>
-                    <span className="stream-group-count">
-                      {group.items.length}
-                    </span>
-                    <span className="stream-group-rule" />
-                  </div>
-
-                  <ul className="timeline">
-                    {group.items.map((item) => {
-                      const isStatus = item.action === "completed";
-                      const nodeClass = isStatus ? "status" : item.type;
-                      const nodeIcon = isStatus
-                        ? NODE_ICONS.status
-                        : NODE_ICONS[item.type];
-
-                      return (
-                        <li
-                          key={item.id}
-                          className={`timeline-item ${nodeClass}`}
-                        >
-                          <span className="timeline-node">{nodeIcon}</span>
-
-                          <div className="timeline-body">
-                            <div className="timeline-row">
-                              {renderAvatar(item.actor, "timeline-avatar")}
-
-                              <p className="timeline-text">
-                                {renderActionText(item)}
-                              </p>
-
-                              <span className="timeline-time">
-                                {formatTime(item.timestamp)}
-                              </span>
-                            </div>
-
-                            <div className="timeline-sub">
-                              {item.projectName && (
-                                <span className="project-chip">
-                                  {item.projectName}
-                                </span>
-                              )}
-                              <span className="timeline-relative">
-                                {formatRelativeTime(item.timestamp)}
-                              </span>
-                            </div>
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </section>
-              ))}
-            </div>
+            <ActivityTimeline groups={groupedActivities} />
           )}
         </div>
 
         {/* Workspace Pulse side panel */}
-        <aside className="workspace-pulse">
-          <div className="pulse-head">
-            <span className="pulse-live-dot" />
-            <h2>Workspace Pulse</h2>
-          </div>
-
-          <div className="pulse-live glass">
-            <div className="pulse-live-row">
-              <span className="pulse-dot today" />
-              <span className="pulse-live-label">Events today</span>
-              <b className="pulse-live-value">{pulse.todayCount}</b>
-            </div>
-
-            <div className="pulse-live-row">
-              <span className="pulse-dot week" />
-              <span className="pulse-live-label">This week</span>
-              <b className="pulse-live-value">{pulse.weekCount}</b>
-            </div>
-          </div>
-
-          <div className="pulse-section">
-            <span className="pulse-label">Recent Changes</span>
-
-            {pulse.recent.length === 0 ? (
-              <p className="pulse-empty">No recent changes.</p>
-            ) : (
-              <ul className="pulse-recent">
-                {pulse.recent.map((item) => (
-                  <li key={item.id}>
-                    <span
-                      className={`pulse-recent-dot ${
-                        item.action === "completed" ? "status" : item.type
-                      }`}
-                    />
-                    <span className="pulse-recent-text">
-                      <b>{item.actor?.name || "Someone"}</b> {item.action}
-                      {item.itemTitle ? ` "${item.itemTitle}"` : ""}
-                    </span>
-                    <span className="pulse-recent-time">
-                      {formatRelativeTime(item.timestamp)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-
-          <div className="pulse-facts">
-            <div className="pulse-fact glass">
-              <span className="pulse-fact-label">Most Active Project</span>
-              <span className="pulse-fact-value">
-                {pulse.mostActiveProject || "—"}
-              </span>
-            </div>
-
-            <div className="pulse-fact glass">
-              <span className="pulse-fact-label">Most Active Member</span>
-              <span className="pulse-fact-value">
-                {pulse.mostActiveMember || "—"}
-              </span>
-            </div>
-          </div>
-        </aside>
+        <WorkspacePulse pulse={pulse} />
       </div>
     </div>
   );

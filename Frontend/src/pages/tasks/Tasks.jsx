@@ -1,26 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import api from "../services/api";
-import useAuthStore from "../store/authStore";
-import "./Tasks.css";
+import api from "../../services/api";
+import useAuthStore from "../../store/authStore";
+import { STATUS_LABELS, STATUS_ORDER } from "../../utils/taskStatus";
+import formatDate from "../../utils/formatDate";
+import "../../layoutes/Tasks.css";
 
-const STATUS_LABELS = {
-  todo: "Todo",
-  "in-progress": "In Progress",
-  done: "Done",
-};
-
-const STATUS_ORDER = ["todo", "in-progress", "done"];
-
-function formatDate(value) {
-  if (!value) return null;
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
+import TaskToolbar from "./TaskToolbar";
+import TaskCard from "./TaskCard";
+import TaskModal from "./TaskModal";
+import TaskDetails from "./TaskDetails";
+import TaskDeleteModal from "./TaskDeleteModal";
 
 function Tasks() {
   const user = useAuthStore((state) => state.user);
@@ -458,68 +447,19 @@ function Tasks() {
       </section>
 
       {/* Toolbar */}
-      <div className="tasks-toolbar">
-        <input
-          type="text"
-          className="tasks-search"
-          placeholder="Search tasks..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-
-        <select
-          className="tasks-filter"
-          value={projectFilter}
-          onChange={(e) => setProjectFilter(e.target.value)}
-        >
-          <option value="all">All Projects</option>
-          {projects.map((p) => (
-            <option key={p._id} value={p._id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          className="tasks-filter"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
-          <option value="all">All Statuses</option>
-          {STATUS_ORDER.map((s) => (
-            <option key={s} value={s}>
-              {STATUS_LABELS[s]}
-            </option>
-          ))}
-        </select>
-
-        <select
-          className="tasks-filter"
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-        >
-          <option value="recent">Recently Updated</option>
-          <option value="oldest">Oldest First</option>
-          <option value="title">Title A–Z</option>
-        </select>
-
-        <div className="tasks-view-toggle">
-          <button
-            type="button"
-            className={viewMode === "kanban" ? "active" : ""}
-            onClick={() => setViewMode("kanban")}
-          >
-            Kanban
-          </button>
-          <button
-            type="button"
-            className={viewMode === "list" ? "active" : ""}
-            onClick={() => setViewMode("list")}
-          >
-            List
-          </button>
-        </div>
-      </div>
+      <TaskToolbar
+        search={search}
+        onSearchChange={setSearch}
+        projectFilter={projectFilter}
+        onProjectFilterChange={setProjectFilter}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        sortBy={sortBy}
+        onSortByChange={setSortBy}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        projects={projects}
+      />
 
       {/* Content */}
       {projects.length === 0 ? (
@@ -554,40 +494,12 @@ function Tasks() {
                   <p className="kanban-empty">No tasks</p>
                 ) : (
                   kanbanColumns[status].map((task) => (
-                    <div
+                    <TaskCard
                       key={task._id}
-                      className="task-card clickable"
-                      onClick={() => openDetails(task)}
-                    >
-                      <div className="task-card-top">
-                        <span className="task-card-title">{task.title}</span>
-                        <span className="task-card-project">
-                          {task.project?.name || "No project"}
-                        </span>
-                      </div>
-
-                      {task.description && (
-                        <p className="task-card-desc">{task.description}</p>
-                      )}
-
-                      <div className="task-card-meta">
-                        <span className="task-card-assignee">
-                          {task.assignedTo?.fullName ||
-                            task.assignedTo?.username ||
-                            "Unassigned"}
-                        </span>
-                        <span className="task-card-date">
-                          {formatDate(task.updatedAt || task.createdAt)}
-                        </span>
-                      </div>
-
-                      <div
-                        className="task-card-actions"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {renderTaskActions(task)}
-                      </div>
-                    </div>
+                      task={task}
+                      onOpenDetails={openDetails}
+                      renderActions={renderTaskActions}
+                    />
                   ))
                 )}
               </div>
@@ -643,262 +555,39 @@ function Tasks() {
       )}
 
       {/* Create / Edit modal */}
-      {taskModal && (
-        <div className="modal-overlay" onClick={() => setTaskModal(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>{taskModal.mode === "create" ? "New Task" : "Edit Task"}</h3>
-
-            {modalError && <p className="modal-error">{modalError}</p>}
-
-            <form onSubmit={handleSubmit}>
-              {taskModal.mode === "create" && (
-                <label>
-                  Project
-                  <select
-                    value={form.projectId}
-                    onChange={(e) =>
-                      setForm({
-                        ...form,
-                        projectId: e.target.value,
-                        assignedTo: "",
-                      })
-                    }
-                  >
-                    <option value="">Select project...</option>
-                    {manageableProjects.map((p) => (
-                      <option key={p._id} value={p._id}>
-                        {p.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              )}
-
-              <label>
-                Title
-                <input
-                  type="text"
-                  value={form.title}
-                  onChange={(e) =>
-                    setForm({ ...form, title: e.target.value })
-                  }
-                  placeholder="Task title"
-                />
-              </label>
-
-              <label>
-                Description
-                <textarea
-                  value={form.description}
-                  onChange={(e) =>
-                    setForm({ ...form, description: e.target.value })
-                  }
-                  placeholder="Task description"
-                  rows="3"
-                />
-              </label>
-
-              <label>
-                Status
-                <select
-                  value={form.status}
-                  onChange={(e) =>
-                    setForm({ ...form, status: e.target.value })
-                  }
-                >
-                  {STATUS_ORDER.map((s) => (
-                    <option key={s} value={s}>
-                      {STATUS_LABELS[s]}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label>
-                Assignee
-                {taskModal.mode === "create" && (
-                  <span className="modal-required">required</span>
-                )}
-                <select
-                  value={form.assignedTo}
-                  onChange={(e) =>
-                    setForm({ ...form, assignedTo: e.target.value })
-                  }
-                >
-                  <option value="">
-                    {taskModal.mode === "create"
-                      ? "Select assignee..."
-                      : "Unassigned"}
-                  </option>
-                  {(membersByProject[
-                    taskModal.mode === "create"
-                      ? form.projectId
-                      : taskModal.projectId
-                  ] || []).map((member) => (
-                    <option key={member.user?._id} value={member.user?._id}>
-                      {member.user?.fullName || member.user?.username}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <div className="modal-actions">
-                <button type="button" onClick={() => setTaskModal(null)}>
-                  Cancel
-                </button>
-                <button type="submit" disabled={saving}>
-                  {saving
-                    ? "Saving..."
-                    : taskModal.mode === "create"
-                      ? "Create Task"
-                      : "Save Changes"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <TaskModal
+        modal={taskModal}
+        form={form}
+        onFormChange={setForm}
+        error={modalError}
+        saving={saving}
+        onClose={() => setTaskModal(null)}
+        onSubmit={handleSubmit}
+        manageableProjects={manageableProjects}
+        membersByProject={membersByProject}
+      />
 
       {/* Details modal */}
-      {detailModal && (
-        <div className="modal-overlay" onClick={() => setDetailModal(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>{detailModal.task.title}</h3>
-
-            <div className="task-detail-grid">
-              <div className="task-detail-row">
-                <span className="task-detail-label">Status</span>
-                <span
-                  className={`status-badge ${detailModal.task.status}`}
-                >
-                  {STATUS_LABELS[detailModal.task.status] ||
-                    detailModal.task.status}
-                </span>
-              </div>
-
-              <div className="task-detail-row">
-                <span className="task-detail-label">Project</span>
-                <span className="task-detail-value">
-                  {detailModal.task.project?.name || "—"}
-                </span>
-              </div>
-
-              <div className="task-detail-row">
-                <span className="task-detail-label">Assignee</span>
-                <span className="task-detail-value">
-                  {detailModal.task.assignedTo?.fullName ||
-                    detailModal.task.assignedTo?.username ||
-                    "Unassigned"}
-                </span>
-              </div>
-
-              <div className="task-detail-row">
-                <span className="task-detail-label">Created</span>
-                <span className="task-detail-value">
-                  {formatDate(detailModal.task.createdAt) || "—"}
-                </span>
-              </div>
-
-              <div className="task-detail-row">
-                <span className="task-detail-label">Updated</span>
-                <span className="task-detail-value">
-                  {formatDate(detailModal.task.updatedAt) || "—"}
-                </span>
-              </div>
-            </div>
-
-            {detailModal.task.description && (
-              <div className="task-detail-desc">
-                <span className="task-detail-label">Description</span>
-                <p>{detailModal.task.description}</p>
-              </div>
-            )}
-
-            <div className="task-detail-subtasks">
-              <span className="task-detail-label">Subtasks</span>
-
-              {detailModal.loading ? (
-                <p className="task-detail-loading">Loading subtasks...</p>
-              ) : detailModal.subtasks.length === 0 ? (
-                <p className="task-detail-none">No subtasks.</p>
-              ) : (
-                <ul>
-                  {detailModal.subtasks.map((sub) => (
-                    <li key={sub._id}>
-                      <span
-                        className={`subtask-check ${
-                          sub.isCompleted ? "done" : ""
-                        }`}
-                      >
-                        {sub.isCompleted ? "✓" : ""}
-                      </span>
-                      <span
-                        className={
-                          sub.isCompleted ? "subtask-title done" : "subtask-title"
-                        }
-                      >
-                        {sub.title}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
-            <div className="modal-actions">
-              <button type="button" onClick={() => setDetailModal(null)}>
-                Close
-              </button>
-              {canManageProject(detailModal.task.project?._id) && (
-                <button
-                  type="button"
-                  className="modal-primary"
-                  onClick={() => {
-                    const task = detailModal.task;
-                    setDetailModal(null);
-                    openEdit(task);
-                  }}
-                >
-                  Edit Task
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <TaskDetails
+        modal={detailModal}
+        canManage={
+          detailModal ? canManageProject(detailModal.task.project?._id) : false
+        }
+        onClose={() => setDetailModal(null)}
+        onEdit={(task) => {
+          setDetailModal(null);
+          openEdit(task);
+        }}
+      />
 
       {/* Delete confirmation modal */}
-      {deleteModal && (
-        <div className="modal-overlay" onClick={() => !deleting && setDeleteModal(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Delete Task?</h3>
-            <p className="modal-text">
-              This will permanently delete "{deleteModal.task.title}". This
-              action cannot be undone.
-            </p>
-
-            {deleteError && <p className="modal-error">{deleteError}</p>}
-
-            <div className="modal-actions">
-              <button
-                type="button"
-                onClick={() => setDeleteModal(null)}
-                disabled={deleting}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="modal-danger"
-                onClick={handleDelete}
-                disabled={deleting}
-              >
-                {deleting ? "Deleting..." : "Delete Task"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <TaskDeleteModal
+        modal={deleteModal}
+        deleting={deleting}
+        error={deleteError}
+        onClose={() => setDeleteModal(null)}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }

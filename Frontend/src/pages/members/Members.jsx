@@ -1,34 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import api from "../services/api";
-import useAuthStore from "../store/authStore";
-import "./Members.css";
+import api from "../../services/api";
+import useAuthStore from "../../store/authStore";
+import formatDate from "../../utils/formatDate";
+import "../../layoutes/Members.css";
 
-const ROLE_LABELS = {
-  admin: "Admin",
-  "project-admin": "Project Admin",
-  member: "Member",
-};
-
-function formatDate(value) {
-  if (!value) return null;
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function getInitials(name) {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
+import { ROLE_LABELS } from "./membersConstants";
+import MemberAvatar from "./MemberAvatar";
+import MemberToolbar from "./MemberToolbar";
+import MemberCard from "./MemberCard";
+import TeamOverview from "./TeamOverview";
+import MemberDetails from "./MemberDetails";
+import MemberAddModal from "./MemberAddModal";
 
 function Members() {
   const user = useAuthStore((state) => state.user);
@@ -274,23 +256,6 @@ function Members() {
     }
   };
 
-  const renderAvatar = (memberUser, className) => {
-    const avatarUrl = memberUser?.avatar?.url;
-    const showAvatar = avatarUrl && !avatarUrl.includes("placehold.co");
-
-    if (showAvatar) {
-      return (
-        <img className={className} src={avatarUrl} alt={memberUser?.fullName} />
-      );
-    }
-
-    return (
-      <span className={`${className} fallback`}>
-        {getInitials(memberUser?.fullName || memberUser?.username)}
-      </span>
-    );
-  };
-
   if (loading) {
     return <div className="members-page">Loading members...</div>;
   }
@@ -329,56 +294,17 @@ function Members() {
         {/* Main directory */}
         <div className="members-main">
           {/* Toolbar */}
-          <div className="members-toolbar">
-            <input
-              type="text"
-              className="members-search"
-              placeholder="Search members..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-
-            <select
-              className="members-filter"
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-            >
-              <option value="all">All Roles</option>
-              <option value="admin">Admin</option>
-              <option value="project-admin">Project Admin</option>
-              <option value="member">Member</option>
-            </select>
-
-            <select
-              className="members-filter"
-              value={projectFilter}
-              onChange={(e) => setProjectFilter(e.target.value)}
-            >
-              <option value="all">All Projects</option>
-              {projects.map((p) => (
-                <option key={p._id} value={p._id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-
-            <div className="members-view-toggle">
-              <button
-                type="button"
-                className={viewMode === "grid" ? "active" : ""}
-                onClick={() => setViewMode("grid")}
-              >
-                Grid
-              </button>
-              <button
-                type="button"
-                className={viewMode === "list" ? "active" : ""}
-                onClick={() => setViewMode("list")}
-              >
-                List
-              </button>
-            </div>
-          </div>
+          <MemberToolbar
+            search={search}
+            onSearchChange={setSearch}
+            roleFilter={roleFilter}
+            onRoleFilterChange={setRoleFilter}
+            projectFilter={projectFilter}
+            onProjectFilterChange={setProjectFilter}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            projects={projects}
+          />
 
           {/* Content */}
           {projects.length === 0 ? (
@@ -401,35 +327,11 @@ function Members() {
           ) : viewMode === "grid" ? (
             <div className="members-grid">
               {filteredMembers.map((member) => (
-                <div
+                <MemberCard
                   key={member.user?._id}
-                  className="member-card clickable"
-                  onClick={() => openDetails(member)}
-                >
-                  <div className="member-card-top">
-                    {renderAvatar(member.user, "member-avatar")}
-
-                    <div className="member-card-info">
-                      <span className="member-card-name">
-                        {member.user?.fullName || "Unknown"}
-                      </span>
-                      <span className="member-card-username">
-                        @{member.user?.username || "unknown"}
-                      </span>
-                    </div>
-
-                    <span className={`role-badge ${member.highestRole}`}>
-                      {ROLE_LABELS[member.highestRole]}
-                    </span>
-                  </div>
-
-                  <div className="member-card-meta">
-                    <span>{member.projectCount} project(s)</span>
-                    {member.joinedAt && (
-                      <span>Joined {formatDate(member.joinedAt)}</span>
-                    )}
-                  </div>
-                </div>
+                  member={member}
+                  onOpenDetails={openDetails}
+                />
               ))}
             </div>
           ) : (
@@ -453,7 +355,7 @@ function Members() {
                     >
                       <td>
                         <div className="members-list-member">
-                          {renderAvatar(member.user, "member-avatar-sm")}
+                          <MemberAvatar user={member.user} className="member-avatar-sm" />
                           <div className="members-list-identity">
                             <span>{member.user?.fullName || "Unknown"}</span>
                             <span>@{member.user?.username || "unknown"}</span>
@@ -487,187 +389,26 @@ function Members() {
         </div>
 
         {/* Team Overview side panel */}
-        <aside className="team-overview">
-          <h2>Team Overview</h2>
-          <p className="team-overview-sub">
-            Role distribution across your projects
-          </p>
-
-          <div className="overview-total">
-            <span className="overview-total-value">{stats.total}</span>
-            <span className="overview-total-label">Total Members</span>
-          </div>
-
-          {stats.total > 0 && (
-            <div className="overview-bar">
-              {stats.admins > 0 && (
-                <span
-                  className="overview-seg admin"
-                  style={{ width: `${(stats.admins / stats.total) * 100}%` }}
-                />
-              )}
-              {stats.projectAdmins > 0 && (
-                <span
-                  className="overview-seg project-admin"
-                  style={{
-                    width: `${(stats.projectAdmins / stats.total) * 100}%`,
-                  }}
-                />
-              )}
-              {stats.members > 0 && (
-                <span
-                  className="overview-seg member"
-                  style={{ width: `${(stats.members / stats.total) * 100}%` }}
-                />
-              )}
-            </div>
-          )}
-
-          <div className="overview-pills">
-            <span className="overview-pill admin">
-              <span className="pill-dot" />
-              Admins
-              <b>{stats.admins}</b>
-            </span>
-            <span className="overview-pill project-admin">
-              <span className="pill-dot" />
-              Project Admins
-              <b>{stats.projectAdmins}</b>
-            </span>
-            <span className="overview-pill member">
-              <span className="pill-dot" />
-              Members
-              <b>{stats.members}</b>
-            </span>
-          </div>
-        </aside>
+        <TeamOverview stats={stats} />
       </div>
 
       {/* Details modal */}
-      {detailModal && (
-        <div className="modal-overlay" onClick={() => setDetailModal(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="member-detail-header">
-              {renderAvatar(detailModal.member.user, "member-detail-avatar")}
-
-              <div className="member-detail-identity">
-                <h3>{detailModal.member.user?.fullName || "Unknown"}</h3>
-                <span>@{detailModal.member.user?.username || "unknown"}</span>
-              </div>
-            </div>
-
-            <div className="member-detail-section">
-              <span className="member-detail-label">Project Memberships</span>
-
-              <ul className="member-membership-list">
-                {detailModal.member.memberships.map((ms) => (
-                  <li key={ms.projectId}>
-                    <div className="member-membership-info">
-                      <span className="member-membership-project">
-                        {ms.projectName}
-                      </span>
-                      <span className="member-membership-date">
-                        Joined {formatDate(ms.joinedAt)}
-                      </span>
-                    </div>
-                    <span className={`role-badge ${ms.role}`}>
-                      {ROLE_LABELS[ms.role]}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <p className="member-detail-note">
-              Contact details such as email addresses are not exposed by the
-              current API.
-            </p>
-
-            <div className="modal-actions">
-              <button type="button" onClick={() => setDetailModal(null)}>
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <MemberDetails
+        modal={detailModal}
+        onClose={() => setDetailModal(null)}
+      />
 
       {/* Add Member modal */}
-      {addModalOpen && (
-        <div
-          className="modal-overlay"
-          onClick={() => !adding && setAddModalOpen(false)}
-        >
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Add Member</h3>
-
-            <p className="modal-text">
-              Add an existing registered user to one of your projects by their
-              email address.
-            </p>
-
-            {addError && <p className="modal-error">{addError}</p>}
-
-            <form onSubmit={handleAddMember}>
-              <label>
-                Project
-                <select
-                  value={addForm.projectId}
-                  onChange={(e) =>
-                    setAddForm({ ...addForm, projectId: e.target.value })
-                  }
-                >
-                  <option value="">Select project...</option>
-                  {manageableProjects.map((p) => (
-                    <option key={p._id} value={p._id}>
-                      {p.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label>
-                Email
-                <input
-                  type="email"
-                  value={addForm.email}
-                  onChange={(e) =>
-                    setAddForm({ ...addForm, email: e.target.value })
-                  }
-                  placeholder="member@example.com"
-                />
-              </label>
-
-              <label>
-                Project Role
-                <select
-                  value={addForm.role}
-                  onChange={(e) =>
-                    setAddForm({ ...addForm, role: e.target.value })
-                  }
-                >
-                  <option value="member">Member</option>
-                  <option value="project-admin">Project Admin</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </label>
-
-              <div className="modal-actions">
-                <button
-                  type="button"
-                  onClick={() => setAddModalOpen(false)}
-                  disabled={adding}
-                >
-                  Cancel
-                </button>
-                <button type="submit" disabled={adding}>
-                  {adding ? "Adding..." : "Add Member"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <MemberAddModal
+        open={addModalOpen}
+        form={addForm}
+        onFormChange={setAddForm}
+        error={addError}
+        adding={adding}
+        onClose={() => setAddModalOpen(false)}
+        onSubmit={handleAddMember}
+        manageableProjects={manageableProjects}
+      />
     </div>
   );
 }

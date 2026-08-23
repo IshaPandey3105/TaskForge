@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
+import LogoutConfirmModal from "../pages/logout/LogoutConfirmModal";
 import "./DashboardLayout.css";
 
 const mainNavItems = [
@@ -226,37 +227,12 @@ function DashboardLayout() {
       </div>
 
       {/* Logout confirmation modal */}
-      {logoutConfirmOpen && (
-        <div
-          className="modal-overlay"
-          onClick={() => !loggingOut && setLogoutConfirmOpen(false)}
-        >
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Log out of TaskForge?</h3>
-            <p className="modal-text">
-              You will need to sign in again to access your workspace.
-            </p>
-
-            <div className="modal-actions">
-              <button
-                type="button"
-                onClick={() => setLogoutConfirmOpen(false)}
-                disabled={loggingOut}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="modal-danger"
-                onClick={handleLogout}
-                disabled={loggingOut}
-              >
-                {loggingOut ? "Logging out..." : "Logout"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <LogoutConfirmModal
+        open={logoutConfirmOpen}
+        loggingOut={loggingOut}
+        onCancel={() => setLogoutConfirmOpen(false)}
+        onConfirm={handleLogout}
+      />
     </div>
   );
 }
