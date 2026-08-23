@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import useAuthStore from "../../store/authStore";
 import formatDate from "../../utils/formatDate";
@@ -11,6 +12,7 @@ import ProjectDeleteModal from "./ProjectDeleteModal";
 
 function Projects() {
   const user = useAuthStore((state) => state.user);
+  const navigate = useNavigate();
 
   const [projects, setProjects] = useState([]);
   const [rolesByProject, setRolesByProject] = useState({});
@@ -247,6 +249,7 @@ function Projects() {
               ).length}
               canManage={canManageProject(project)}
               canDelete={canDeleteProject(project)}
+              onOpen={() => navigate(`/projects/${project._id}`)}
               onEdit={() => openEdit(project)}
               onDelete={() => openDelete(project)}
             />
@@ -273,7 +276,11 @@ function Projects() {
                 const taskCount = (tasksByProject[project._id] || []).length;
 
                 return (
-                  <tr key={project._id}>
+                  <tr
+                    key={project._id}
+                    className="clickable-row"
+                    onClick={() => navigate(`/projects/${project._id}`)}
+                  >
                     <td>{project.name}</td>
                     <td className="projects-list-desc">
                       {project.description || "—"}
@@ -284,7 +291,10 @@ function Projects() {
                     <td>{memberCount}</td>
                     <td>{taskCount}</td>
                     <td>{formatDate(project.createdAt)}</td>
-                    <td className="projects-list-actions">
+                    <td
+                      className="projects-list-actions"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       {canManageProject(project) && (
                         <button type="button" onClick={() => openEdit(project)}>
                           Edit

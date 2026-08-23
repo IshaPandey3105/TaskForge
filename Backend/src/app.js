@@ -24,6 +24,7 @@ import healthcheckRouter from "./routes/healthcheck.routes.js";
 import noteRouter from "./routes/note.routes.js";
 import projectRouter from "./routes/project.routes.js";
 import taskRouter from "./routes/task.routes.js";
+import userRouter from "./routes/user.routes.js";
 
 // * healthcheck
 app.use("/api/v1/healthcheck", healthcheckRouter);
@@ -33,6 +34,7 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/projects", projectRouter);
 app.use("/api/v1/tasks", taskRouter); // each task must have projectId to it for permission check
 app.use("/api/v1/notes", noteRouter);
+app.use("/api/v1/users", userRouter);
 
 app.use(errorHandler);
 

@@ -8,11 +8,12 @@ function ProjectCard({
   doneCount,
   canManage,
   canDelete,
+  onOpen,
   onEdit,
   onDelete,
 }) {
   return (
-    <div className="project-card">
+    <div className="project-card clickable" onClick={onOpen}>
       <div className="project-card-top">
         <h3>{project.name}</h3>
         <span className="project-card-role">{role}</span>
@@ -33,7 +34,7 @@ function ProjectCard({
         <span>Updated {formatDate(project.updatedAt)}</span>
       </div>
 
-      <div className="project-card-actions">
+      <div className="project-card-actions" onClick={(e) => e.stopPropagation()}>
         {canManage && (
           <button type="button" onClick={onEdit}>
             Edit

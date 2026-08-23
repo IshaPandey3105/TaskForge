@@ -81,7 +81,8 @@
 .members-layout {
   display: grid;
 
-  grid-template-columns: minmax(0, 1fr) 300px;
+  /* Directory (left) | main content | team overview (right) */
+  grid-template-columns: 280px minmax(0, 1fr) 300px;
 
   gap: 24px;
 
@@ -1174,7 +1175,15 @@
   .team-overview {
     position: static;
 
-    order: -1;
+    order: -2;
+  }
+
+  .members-directory {
+    position: static;
+  }
+
+  .members-directory-list {
+    max-height: none;
   }
 
   .overview-pills {
@@ -1200,4 +1209,386 @@
 
     align-self: flex-start;
   }
+}
+
+/* ---------- MEMBER DIRECTORY (left panel) ---------- */
+
+.members-directory {
+  position: sticky;
+  top: 24px;
+
+  padding: 20px 18px;
+
+  background: #141b26;
+
+  border: 1px solid #242b38;
+  border-radius: 16px;
+
+  min-width: 0;
+}
+
+.members-directory h2 {
+  margin: 0 0 4px;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  color: #f3f4f6;
+}
+
+.members-directory-sub {
+  margin: 0 0 14px;
+
+  font-size: 12px;
+
+  color: #8b94a5;
+
+  line-height: 1.5;
+}
+
+.members-directory-search {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 8px 12px;
+
+  margin-bottom: 10px;
+
+  border: 1px solid #2a3242;
+  border-radius: 999px;
+
+  background: #1a2130;
+
+  color: #e5e7eb;
+
+  font-family: inherit;
+  font-size: 12.5px;
+}
+
+.members-directory-search::placeholder {
+  color: #6b7483;
+}
+
+.members-directory-search:focus {
+  border-color: #2563eb;
+
+  outline: none;
+}
+
+.members-directory-project {
+  width: 100%;
+
+  padding: 8px 10px;
+
+  margin-bottom: 12px;
+
+  border: 1px solid #2a3242;
+  border-radius: 10px;
+
+  background: #1a2130;
+
+  color: #e5e7eb;
+
+  font-family: inherit;
+  font-size: 12.5px;
+}
+
+.members-directory-empty {
+  margin: 0;
+
+  font-size: 13px;
+
+  color: #8b94a5;
+}
+
+.members-directory-list {
+  list-style: none;
+
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+
+  max-height: 520px;
+
+  overflow-y: auto;
+}
+
+.member-directory-item {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 10px;
+
+  padding: 10px;
+
+  background: #1a2130;
+
+  border: 1px solid #2a3242;
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  transition: border-color 0.15s ease;
+}
+
+.member-directory-item:hover {
+  border-color: #3b82f6;
+}
+
+.member-directory-info {
+  display: flex;
+  flex-direction: column;
+
+  gap: 1px;
+
+  min-width: 0;
+
+  flex: 1;
+}
+
+.member-directory-name {
+  font-size: 13.5px;
+  font-weight: 600;
+
+  color: #f3f4f6;
+
+  overflow-wrap: anywhere;
+}
+
+.member-directory-username {
+  font-size: 11.5px;
+
+  color: #8b94a5;
+}
+
+.member-directory-email {
+  font-size: 11.5px;
+
+  color: #6b7483;
+
+  overflow-wrap: anywhere;
+}
+
+.member-directory-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  gap: 6px;
+
+  flex-shrink: 0;
+}
+
+.directory-status {
+  padding: 2px 8px;
+
+  border-radius: 999px;
+
+  font-size: 10.5px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.directory-status.neutral {
+  background: rgba(148, 163, 184, 0.12);
+
+  color: #cbd5e1;
+}
+
+.directory-status.member {
+  background: rgba(148, 163, 184, 0.1);
+
+  border: 1px solid rgba(148, 163, 184, 0.22);
+
+  color: #cbd5e1;
+}
+
+.directory-status.admin {
+  background: rgba(245, 158, 11, 0.1);
+
+  border: 1px solid rgba(245, 158, 11, 0.22);
+
+  color: #fbbf24;
+}
+
+.directory-status.none {
+  background: rgba(255, 255, 255, 0.04);
+
+  border: 1px dashed rgba(148, 163, 184, 0.3);
+
+  color: #8b94a5;
+}
+
+.directory-add-btn {
+  padding: 4px 10px;
+
+  border: none;
+  border-radius: 999px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+}
+
+.directory-add-btn:hover {
+  background: #3b82f6;
+}
+
+.directory-remove-btn {
+  padding: 4px 10px;
+
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 999px;
+
+  background: transparent;
+
+  color: #f87171;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+}
+
+.directory-remove-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+[data-theme="light"] .directory-remove-btn {
+  border-color: rgba(220, 38, 38, 0.35);
+
+  color: #dc2626;
+}
+
+[data-theme="light"] .directory-remove-btn:hover {
+  background: rgba(220, 38, 38, 0.08);
+}
+
+/* ---------- MEMBER EMAIL LINES ---------- */
+
+.member-card-email {
+  font-size: 12px;
+
+  color: #6b7483;
+
+  overflow-wrap: anywhere;
+}
+
+.member-detail-email {
+  font-size: 13px;
+
+  color: #8b94a5;
+
+  overflow-wrap: anywhere;
+}
+
+.members-list-email {
+  font-size: 12px;
+
+  color: #9aa3b2;
+
+  overflow-wrap: anywhere;
+}
+
+/* ---------- DIRECTORY / EMAIL LIGHT THEME ---------- */
+
+[data-theme="light"] .members-directory {
+  background: #ffffff;
+
+  border-color: #e5e7eb;
+}
+
+[data-theme="light"] .members-directory h2 {
+  color: #111827;
+}
+
+[data-theme="light"] .members-directory-sub {
+  color: #6b7280;
+}
+
+[data-theme="light"] .members-directory-search,
+[data-theme="light"] .members-directory-project {
+  background: #ffffff;
+
+  border-color: #d1d5db;
+
+  color: #111827;
+}
+
+[data-theme="light"] .members-directory-search::placeholder {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .member-directory-item {
+  background: #f9fafb;
+
+  border-color: #e5e7eb;
+}
+
+[data-theme="light"] .member-directory-name {
+  color: #111827;
+}
+
+[data-theme="light"] .member-directory-username {
+  color: #6b7280;
+}
+
+[data-theme="light"] .member-directory-email {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .directory-status.neutral {
+  background: rgba(100, 116, 139, 0.08);
+
+  color: #475569;
+}
+
+[data-theme="light"] .directory-status.member {
+  background: rgba(100, 116, 139, 0.08);
+
+  border-color: rgba(100, 116, 139, 0.2);
+
+  color: #475569;
+}
+
+[data-theme="light"] .directory-status.admin {
+  background: rgba(245, 158, 11, 0.09);
+
+  border-color: rgba(245, 158, 11, 0.25);
+
+  color: #d97706;
+}
+
+[data-theme="light"] .directory-status.none {
+  background: transparent;
+
+  border-color: rgba(100, 116, 139, 0.35);
+
+  color: #6b7280;
+}
+
+[data-theme="light"] .member-card-email,
+[data-theme="light"] .members-list-email {
+  color: #9ca3af;
+}
+
+[data-theme="light"] .member-detail-email {
+  color: #6b7280;
 }

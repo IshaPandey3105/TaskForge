@@ -24,8 +24,9 @@ function MemberToolbar({
         value={roleFilter}
         onChange={(e) => onRoleFilterChange(e.target.value)}
       >
+        {/* "Admin" is a global role, not a project-level role — it is
+            intentionally not offered as a filter/option here. */}
         <option value="all">All Roles</option>
-        <option value="admin">Admin</option>
         <option value="project-admin">Project Admin</option>
         <option value="member">Member</option>
       </select>

@@ -1,45 +1,31 @@
-function MemberAddModal({
+// Add-member modal scoped to a single project. Only "member" and
+// "project-admin" are offered — "Admin" is not a project-level role.
+
+function ProjectAddMemberModal({
   open,
+  projectName,
   form,
   onFormChange,
   error,
   adding,
   onClose,
   onSubmit,
-  manageableProjects,
 }) {
   if (!open) return null;
 
   return (
-    <div className="modal-overlay" onClick={() => !adding && onClose()}>
+    <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <h3>Add Member</h3>
 
         <p className="modal-text">
-          Add an existing registered user to one of your projects by their
-          email address.
+          Add an existing registered user to "{projectName}" by their email
+          address.
         </p>
 
         {error && <p className="modal-error">{error}</p>}
 
         <form onSubmit={onSubmit}>
-          <label>
-            Project
-            <select
-              value={form.projectId}
-              onChange={(e) =>
-                onFormChange({ ...form, projectId: e.target.value })
-              }
-            >
-              <option value="">Select project...</option>
-              {manageableProjects.map((p) => (
-                <option key={p._id} value={p._id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
           <label>
             Email
             <input
@@ -60,8 +46,6 @@ function MemberAddModal({
                 onFormChange({ ...form, role: e.target.value })
               }
             >
-              {/* Only project-level roles are offered — "Admin" is a global
-                  role, never an assignable project role. */}
               <option value="member">Member</option>
               <option value="project-admin">Project Admin</option>
             </select>
@@ -81,4 +65,4 @@ function MemberAddModal({
   );
 }
 
-export default MemberAddModal;
+export default ProjectAddMemberModal;

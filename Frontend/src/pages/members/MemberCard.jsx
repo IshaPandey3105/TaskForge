@@ -18,6 +18,9 @@ function MemberCard({ member, onOpenDetails }) {
           <span className="member-card-username">
             @{member.user?.username || "unknown"}
           </span>
+          <span className="member-card-email">
+            {member.user?.email || "—"}
+          </span>
         </div>
 
         <span className={`role-badge ${member.highestRole}`}>

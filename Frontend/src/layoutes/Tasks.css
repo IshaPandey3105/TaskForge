@@ -1076,3 +1076,221 @@
     align-self: flex-start;
   }
 }
+
+/* ---------- SUBTASK MANAGEMENT ---------- */
+
+.task-detail-project-row {
+  margin: -8px 0 14px;
+}
+
+.subtask-list {
+  list-style: none;
+
+  margin: 0;
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.subtask-item {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 8px 10px;
+
+  background: #1a2130;
+
+  border: 1px solid #2a3242;
+  border-radius: 10px;
+}
+
+.subtask-item .subtask-title {
+  flex: 1;
+
+  min-width: 0;
+
+  overflow-wrap: anywhere;
+}
+
+/* The completion toggle is a real button so every member can use it */
+.subtask-check {
+  background: transparent;
+
+  font-family: inherit;
+
+  cursor: pointer;
+}
+
+.subtask-check:disabled {
+  opacity: 0.6;
+
+  cursor: default;
+}
+
+.subtask-count {
+  font-size: 11px;
+  font-weight: 500;
+
+  color: #8b94a5;
+
+  text-transform: none;
+
+  letter-spacing: 0;
+}
+
+.subtask-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  flex-shrink: 0;
+}
+
+.subtask-actions button {
+  padding: 4px 9px;
+
+  border: 1px solid #2a3242;
+  border-radius: 7px;
+
+  background: transparent;
+
+  color: #c3cad6;
+
+  font-family: inherit;
+  font-size: 11.5px;
+
+  cursor: pointer;
+}
+
+.subtask-actions button:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.subtask-actions button.danger {
+  color: #e58383;
+}
+
+.subtask-actions button.danger:hover {
+  background: rgba(231, 21, 21, 0.12);
+}
+
+.subtask-edit-input {
+  flex: 1;
+
+  min-width: 0;
+
+  padding: 6px 9px;
+
+  border: 1px solid #2a3242;
+  border-radius: 8px;
+
+  background: #141b26;
+
+  color: #e5e7eb;
+
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.subtask-edit-input:focus {
+  border-color: #2563eb;
+
+  outline: none;
+}
+
+.subtask-add-form {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 10px;
+}
+
+.subtask-add-form input {
+  flex: 1;
+
+  min-width: 0;
+
+  padding: 8px 10px;
+
+  border: 1px solid #2a3242;
+  border-radius: 8px;
+
+  background: #1a2130;
+
+  color: #e5e7eb;
+
+  font-family: inherit;
+  font-size: 13px;
+}
+
+.subtask-add-form input:focus {
+  border-color: #2563eb;
+
+  outline: none;
+}
+
+.subtask-add-form button {
+  padding: 8px 14px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #2563eb;
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.subtask-add-form button:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+/* ---------- SUBTASK LIGHT THEME ---------- */
+
+[data-theme="light"] .subtask-item {
+  background: #f9fafb;
+
+  border-color: #e5e7eb;
+}
+
+[data-theme="light"] .subtask-actions button {
+  border-color: #d1d5db;
+
+  color: #374151;
+}
+
+[data-theme="light"] .subtask-actions button:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .subtask-actions button.danger {
+  color: #dc2626;
+}
+
+[data-theme="light"] .subtask-actions button.danger:hover {
+  background: rgba(220, 38, 38, 0.08);
+}
+
+[data-theme="light"] .subtask-edit-input,
+[data-theme="light"] .subtask-add-form input {
+  background: #ffffff;
+
+  border-color: #d1d5db;
+
+  color: #111827;
+}

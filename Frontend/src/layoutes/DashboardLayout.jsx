@@ -67,9 +67,14 @@ function DashboardLayout() {
         .toUpperCase()
     : "TF";
 
+  // Prefix matching keeps the topbar title correct on nested routes
+  // such as /projects/:projectId.
   const currentPage =
-    mainNavItems.find((item) => item.path === location.pathname)?.label ||
-    "Dashboard";
+    mainNavItems.find(
+      (item) =>
+        location.pathname === item.path ||
+        location.pathname.startsWith(`${item.path}/`)
+    )?.label || "Dashboard";
 
   return (
     <div className="dashboard-layout">

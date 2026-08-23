@@ -8,6 +8,7 @@ import { ROLE_LABELS } from "./membersConstants";
 import MemberAvatar from "./MemberAvatar";
 import MemberToolbar from "./MemberToolbar";
 import MemberCard from "./MemberCard";
+import MemberDirectory from "./MemberDirectory";
 import TeamOverview from "./TeamOverview";
 import MemberDetails from "./MemberDetails";
 import MemberAddModal from "./MemberAddModal";
@@ -18,6 +19,7 @@ function Members() {
   const [projects, setProjects] = useState([]);
   const [rolesByProject, setRolesByProject] = useState({});
   const [membershipsByProject, setMembershipsByProject] = useState({});
+  const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -30,6 +32,9 @@ function Members() {
   // Details modal
   const [detailModal, setDetailModal] = useState(null); // { member }
 
+  // Directory: project context used for membership status + quick add/remove
+  const [dirProjectId, setDirProjectId] = useState("");
+
   // Add member modal
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [addForm, setAddForm] = useState({
@@ -40,6 +45,10 @@ function Members() {
   const [adding, setAdding] = useState(false);
   const [addError, setAddError] = useState("");
   const [addSuccess, setAddSuccess] = useState("");
+
+  // Remove member confirmation
+  const [removeTarget, setRemoveTarget] = useState(null); // { member, projectId }
+  const [removing, setRemoving] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -76,6 +85,15 @@ function Members() {
 
       setRolesByProject(rolesMap);
       setMembershipsByProject(membershipsMap);
+
+      // Real registered-user list for the selection directory. If this
+      // endpoint is unavailable we gracefully fall back to membership data.
+      try {
+        const usersRes = await api.get("/users");
+        setAllUsers(usersRes.data.data || []);
+      } catch {
+        setAllUsers([]);
+      }
     } catch (e) {
       setError(e.response?.data?.message || "Unable to load members.");
     } finally {
@@ -94,8 +112,8 @@ function Members() {
   // ---- Derived data ----
 
   // Build a team directory by aggregating ProjectMember records across all
-  // projects the current user belongs to. This is the only member data the
-  // existing API exposes (there is no global user-list endpoint).
+  // projects the current user belongs to. This drives the main grid/list
+  // and the Team Overview stats (actual project members only).
   const directory = useMemo(() => {
     const map = new Map();
 
@@ -142,6 +160,56 @@ function Members() {
     });
   }, [membershipsByProject, projects]);
 
+  // Full people directory built from ALL registered users (GET /users),
+  // merged with any known memberships. Falls back to the membership-derived
+  // directory when the users endpoint is unavailable.
+  const allUsersDirectory = useMemo(() => {
+    const source =
+      allUsers.length > 0
+        ? allUsers.map((u) => ({ user: u }))
+        : directory.map((d) => ({ user: d.user }));
+
+    return source
+      .map(({ user: u }) => {
+        const memberships = [];
+        Object.entries(membershipsByProject).forEach(([projectId, members]) => {
+          const project = projects.find((p) => p._id === projectId);
+          const membership = members.find((m) => m.user?._id === u?._id);
+          if (membership && project) {
+            memberships.push({
+              projectId,
+              projectName: project.name,
+              role: membership.role,
+              joinedAt: membership.createdAt,
+            });
+          }
+        });
+
+        const roles = memberships.map((m) => m.role);
+        const highestRole = roles.includes("admin")
+          ? "admin"
+          : roles.includes("project-admin")
+            ? "project-admin"
+            : "member";
+
+        const joinedDates = memberships
+          .map((m) => m.joinedAt)
+          .filter(Boolean)
+          .sort((a, b) => new Date(a) - new Date(b));
+
+        return {
+          user: u,
+          memberships,
+          highestRole,
+          joinedAt: joinedDates[0] || null,
+          projectCount: memberships.length,
+        };
+      })
+      .sort((a, b) =>
+        (a.user?.fullName || "").localeCompare(b.user?.fullName || "")
+      );
+  }, [allUsers, directory, membershipsByProject, projects]);
+
   const stats = useMemo(() => {
     return {
       total: directory.length,
@@ -181,8 +249,8 @@ function Members() {
   }, [directory, search, roleFilter, projectFilter]);
 
   // ---- Permissions (existing architecture) ----
-  // Add Member uses POST /projects/:projectId/members which the backend
-  // restricts to ADMIN / PROJECT_ADMIN via validateProjectPermission.
+  // Add/Remove use POST & DELETE /projects/:projectId/members which the
+  // backend restricts to ADMIN / PROJECT_ADMIN via validateProjectPermission.
   // Gating is strictly by the current user's PROJECT MEMBERSHIP role.
 
   const canManageProject = useCallback(
@@ -197,6 +265,13 @@ function Members() {
     () => projects.filter((p) => canManageProject(p._id)),
     [projects, canManageProject]
   );
+
+  // Default the directory project selector to the first manageable project
+  useEffect(() => {
+    if (!dirProjectId && manageableProjects.length > 0) {
+      setDirProjectId(manageableProjects[0]._id);
+    }
+  }, [dirProjectId, manageableProjects]);
 
   // ---- Modals ----
 
@@ -213,6 +288,55 @@ function Members() {
     setAddError("");
     setAddSuccess("");
     setAddModalOpen(true);
+  };
+
+  // Quick-add straight from the member directory: prefill the email of the
+  // selected person and the currently chosen manageable project.
+  const handleQuickAdd = (member) => {
+    if (!dirProjectId) return;
+
+    setAddForm({
+      projectId: dirProjectId,
+      email: member.user?.email || "",
+      role: "member",
+    });
+    setAddError("");
+    setAddSuccess("");
+    setAddModalOpen(true);
+  };
+
+  const handleRemoveRequest = (member) => {
+    if (!dirProjectId) return;
+    setRemoveTarget({ member, projectId: dirProjectId });
+  };
+
+  const handleRemoveMember = async () => {
+    if (!removeTarget) return;
+
+    setRemoving(true);
+
+    try {
+      await api.delete(
+        `/projects/${removeTarget.projectId}/members/${removeTarget.member.user._id}`
+      );
+
+      const projectName =
+        projects.find((p) => p._id === removeTarget.projectId)?.name ||
+        "project";
+
+      setRemoveTarget(null);
+      setAddSuccess(
+        `${removeTarget.member.user?.fullName || "Member"} removed from ${projectName}.`
+      );
+      setTimeout(() => setAddSuccess(""), 4000);
+      await loadData();
+    } catch (err) {
+      setRemoveTarget(null);
+      setError(err.response?.data?.message || "Unable to remove member.");
+      setTimeout(() => setError(""), 4000);
+    } finally {
+      setRemoving(false);
+    }
   };
 
   const handleAddMember = async (e) => {
@@ -260,15 +384,6 @@ function Members() {
     return <div className="members-page">Loading members...</div>;
   }
 
-  if (error && projects.length === 0) {
-    return (
-      <div className="members-page">
-        <h1>Members</h1>
-        <p className="members-error">{error}</p>
-      </div>
-    );
-  }
-
   return (
     <div className="members-page">
       {/* Header */}
@@ -289,8 +404,22 @@ function Members() {
       </div>
 
       {addSuccess && <div className="members-success">{addSuccess}</div>}
+      {!addSuccess && error && <div className="members-error">{error}</div>}
 
       <div className="members-layout">
+        {/* Member directory (left panel) */}
+        <MemberDirectory
+          members={allUsersDirectory}
+          manageableProjects={manageableProjects}
+          selectedProjectId={dirProjectId}
+          onSelectProject={setDirProjectId}
+          membershipsByProject={membershipsByProject}
+          canManage={manageableProjects.length > 0}
+          onOpenDetails={openDetails}
+          onQuickAdd={handleQuickAdd}
+          onRemoveRequest={handleRemoveRequest}
+        />
+
         {/* Main directory */}
         <div className="members-main">
           {/* Toolbar */}
@@ -340,6 +469,7 @@ function Members() {
                 <thead>
                   <tr>
                     <th>Member</th>
+                    <th>Email</th>
                     <th>Role</th>
                     <th>Projects</th>
                     <th>Joined</th>
@@ -361,6 +491,9 @@ function Members() {
                             <span>@{member.user?.username || "unknown"}</span>
                           </div>
                         </div>
+                      </td>
+                      <td className="members-list-email">
+                        {member.user?.email || "—"}
                       </td>
                       <td>
                         <span className={`role-badge ${member.highestRole}`}>
@@ -409,6 +542,44 @@ function Members() {
         onSubmit={handleAddMember}
         manageableProjects={manageableProjects}
       />
+
+      {/* Remove member confirmation */}
+      {removeTarget && (
+        <div
+          className="modal-overlay"
+          onClick={() => !removing && setRemoveTarget(null)}
+        >
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Remove from Project?</h3>
+            <p className="modal-text">
+              This will remove "{removeTarget.member.user?.fullName ||
+                removeTarget.member.user?.username}" (@
+              {removeTarget.member.user?.username || "unknown"}) from "
+              {projects.find((p) => p._id === removeTarget.projectId)?.name ||
+                "this project"}
+              ". They will lose access to it.
+            </p>
+
+            <div className="modal-actions">
+              <button
+                type="button"
+                onClick={() => setRemoveTarget(null)}
+                disabled={removing}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="modal-danger"
+                onClick={handleRemoveMember}
+                disabled={removing}
+              >
+                {removing ? "Removing..." : "Remove Member"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

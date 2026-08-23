@@ -11,10 +11,13 @@ function MemberDetails({ modal, onClose }) {
         <div className="member-detail-header">
           <MemberAvatar user={modal.member.user} className="member-detail-avatar" />
 
-          <div className="member-detail-identity">
-            <h3>{modal.member.user?.fullName || "Unknown"}</h3>
-            <span>@{modal.member.user?.username || "unknown"}</span>
-          </div>
+              <div className="member-detail-identity">
+                <h3>{modal.member.user?.fullName || "Unknown"}</h3>
+                <span>@{modal.member.user?.username || "unknown"}</span>
+                <span className="member-detail-email">
+                  {modal.member.user?.email || "—"}
+                </span>
+              </div>
         </div>
 
         <div className="member-detail-section">
@@ -38,11 +41,6 @@ function MemberDetails({ modal, onClose }) {
             ))}
           </ul>
         </div>
-
-        <p className="member-detail-note">
-          Contact details such as email addresses are not exposed by the
-          current API.
-        </p>
 
         <div className="modal-actions">
           <button type="button" onClick={onClose}>

@@ -18,7 +18,7 @@ const getProjects = asyncHandler(async (req, res) => {
     _id: {
       $in: projectIds,
     },
-  }).populate('createdBy', 'username fullname email avatar');
+  }).populate('createdBy', 'username fullName email avatar');
 
   return res
     .status(200)
@@ -181,7 +181,7 @@ const getProjectMembers = asyncHandler(async (req, res) => {
     project: projectId,
   })
     // Replace the user ObjectId with user details
-    .populate('user', 'username fullName avatar')
+    .populate('user', 'username fullName email avatar')
 
     // Return only these fields and exclude _id
     .select('project user role createdAt updatedAt -_id');
@@ -251,6 +251,16 @@ const deleteMember = asyncHandler(async (req, res) => {
 
   if (!projectMember) {
     throw new ApiError(404, 'Project member not found');
+  }
+
+  // A global Admin can never be removed as a project member.
+  const targetUser = await User.findById(userId).select('role');
+
+  if (targetUser?.role === UserRolesEnum.ADMIN) {
+    throw new ApiError(
+      403,
+      'Global admins cannot be removed from a project'
+    );
   }
 
   projectMember = await ProjectMember.findByIdAndDelete(projectMember._id);

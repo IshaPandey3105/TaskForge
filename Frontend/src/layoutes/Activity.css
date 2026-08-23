@@ -161,6 +161,16 @@
 
   font-family: inherit;
   font-size: 12.5px;
+
+  /* Keep the native dropdown readable on dark backgrounds */
+  color-scheme: dark;
+}
+
+/* Selected/unselected option text stays clearly visible */
+.activity-time-filter option {
+  background: #161b26;
+
+  color: #e5e7eb;
 }
 
 /* ---------- GROUPED STREAM ---------- */
@@ -801,6 +811,16 @@
   background: rgba(255, 255, 255, 0.7);
 
   border-color: rgba(15, 23, 42, 0.12);
+
+  color: #111827;
+}
+
+[data-theme="light"] .activity-time-filter {
+  color-scheme: light;
+}
+
+[data-theme="light"] .activity-time-filter option {
+  background: #ffffff;
 
   color: #111827;
 }
