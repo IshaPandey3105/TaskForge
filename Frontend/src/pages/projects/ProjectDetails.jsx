@@ -13,6 +13,7 @@ import ProjectAddMemberModal from "./ProjectAddMemberModal";
 import ProjectTaskModal from "./ProjectTaskModal";
 import ProjectMemberRemoveModal from "./ProjectMemberRemoveModal";
 
+
 function ProjectDetails() {
   const { projectId } = useParams();
   const navigate = useNavigate();
