@@ -250,7 +250,11 @@ function Tasks() {
     try {
       const res = await api.get(`/tasks/${task.project._id}/t/${task._id}`);
       setDetailModal({
-        task: { ...task, ...res.data.data },
+        // Merge aggregate data UNDER the list object: the list task keeps
+        // its populated `project`/`assignedTo`, while the aggregate response
+        // contributes the subtasks. Without this the project name renders
+        // blank and subtask calls use an invalid project id.
+        task: { ...res.data.data, ...task },
         loading: false,
         subtasks: res.data.data?.subtasks || [],
       });
@@ -299,11 +303,24 @@ function Tasks() {
 
     try {
       if (mode === "create") {
-        await api.post(`/tasks/${form.projectId}`, {
+        const res = await api.post(`/tasks/${form.projectId}`, {
           title: form.title.trim(),
           description: form.description.trim(),
           status: form.status,
           assignedTo: form.assignedTo,
+        });
+
+        setTaskModal(null);
+        await loadData();
+
+        // Open the Task Details modal for the freshly created task so the
+        // user can immediately see the Project → Task → Subtasks view and
+        // start adding subtasks right away.
+        const created = res.data.data;
+        const project = projects.find((p) => p._id === form.projectId);
+        openDetails({
+          ...created,
+          project: project || { _id: form.projectId },
         });
       } else {
         await api.put(`/tasks/${task.project._id}/t/${task._id}`, {
@@ -312,10 +329,10 @@ function Tasks() {
           status: form.status,
           ...(form.assignedTo ? { assignedTo: form.assignedTo } : {}),
         });
-      }
 
-      setTaskModal(null);
-      await loadData();
+        setTaskModal(null);
+        await loadData();
+      }
     } catch (err) {
       setModalError(err.response?.data?.message || "Unable to save task.");
     } finally {

@@ -1,4 +1,5 @@
 import { STATUS_LABELS, STATUS_ORDER } from "../../utils/taskStatus";
+import TaskSubtasks from "./TaskSubtasks";
 
 function TaskModal({
   modal,
@@ -13,10 +14,12 @@ function TaskModal({
 }) {
   if (!modal) return null;
 
+  const isEdit = modal.mode === "edit";
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h3>{modal.mode === "create" ? "New Task" : "Edit Task"}</h3>
+        <h3>{isEdit ? "Edit Task" : "New Task"}</h3>
 
         {error && <p className="modal-error">{error}</p>}
 
@@ -107,6 +110,16 @@ function TaskModal({
               ))}
             </select>
           </label>
+
+          {/* Subtask management is available while editing an existing task,
+              so it is discoverable for tasks in existing projects. */}
+          {isEdit && modal.task?._id && (
+            <TaskSubtasks
+              projectId={modal.projectId}
+              taskId={modal.task._id}
+              canManage
+            />
+          )}
 
           <div className="modal-actions">
             <button type="button" onClick={onClose}>
