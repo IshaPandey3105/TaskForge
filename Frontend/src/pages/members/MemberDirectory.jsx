@@ -2,12 +2,14 @@ import { useState } from "react";
 import { ROLE_LABELS } from "./membersConstants";
 import MemberAvatar from "./MemberAvatar";
 
+
 // Left-side member directory backed by the real registered-user list
 // (GET /users). Shows every user — not only people already assigned to a
 // project — with name, username, email and, when a manageable project is
 // selected, their membership status/role in it. Authorized admins can add
 // unassigned users or remove assigned members (with confirmation handled
 // by the parent page).
+
 
 function MemberDirectory({
   members,
