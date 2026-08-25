@@ -210,6 +210,16 @@ function Members() {
       );
   }, [allUsers, directory, membershipsByProject, projects]);
 
+  // Map of global role per user id, used so the UI never offers (or allows)
+  // removing a Global Admin as a project member. The backend also blocks it.
+  const globalRoleByUserId = useMemo(() => {
+    const map = {};
+    allUsers.forEach((u) => {
+      if (u?._id) map[u._id] = u.role;
+    });
+    return map;
+  }, [allUsers]);
+
   const stats = useMemo(() => {
     return {
       total: directory.length,
@@ -339,6 +349,20 @@ function Members() {
     }
   };
 
+  // Whether the current user is allowed to remove this member from the
+  // currently selected project. Only Admin / Project Admin may remove; a
+  // Project Admin can never remove a Global Admin; Members remove nothing.
+  const canRemoveMember = (member) => {
+    if (!dirProjectId) return false;
+    if (!canManageProject(dirProjectId)) return false;
+    if (member.user?._id === user?._id) return false;
+    if (globalRoleByUserId[member.user?._id] === "admin") return false;
+    // The person must actually be assigned to the selected project.
+    return (membershipsByProject[dirProjectId] || []).some(
+      (m) => m.user?._id === member.user?._id
+    );
+  };
+
   const handleAddMember = async (e) => {
     e.preventDefault();
 
@@ -417,7 +441,6 @@ function Members() {
           canManage={manageableProjects.length > 0}
           onOpenDetails={openDetails}
           onQuickAdd={handleQuickAdd}
-          onRemoveRequest={handleRemoveRequest}
         />
 
         {/* Main directory */}
@@ -460,6 +483,7 @@ function Members() {
                   key={member.user?._id}
                   member={member}
                   onOpenDetails={openDetails}
+                  onRemove={canRemoveMember(member) ? handleRemoveRequest : null}
                 />
               ))}
             </div>

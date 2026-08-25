@@ -9,7 +9,7 @@ import { asyncHandler } from '../utils/async-handler.js';
  */
 const getAllUsers = asyncHandler(async (req, res) => {
   const users = await User.find({})
-    .select('fullName username email')
+    .select('fullName username email role')
     .sort({ fullName: 1 });
 
   return res

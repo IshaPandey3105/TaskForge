@@ -557,6 +557,49 @@
   color: #6b7483;
 }
 
+/* Remove action on assigned-member cards (middle section) */
+.member-card-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding-top: 2px;
+}
+
+.member-remove-btn {
+  padding: 6px 12px;
+
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 999px;
+
+  background: transparent;
+
+  color: #f87171;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition: background 0.15s ease;
+}
+
+.member-remove-btn:hover {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+[data-theme="light"] .member-remove-btn {
+  border-color: rgba(220, 38, 38, 0.35);
+
+  color: #dc2626;
+}
+
+[data-theme="light"] .member-remove-btn:hover {
+  background: rgba(220, 38, 38, 0.08);
+}
+
 /* ---------- LIST VIEW ---------- */
 
 .members-list {
@@ -1307,7 +1350,7 @@
   list-style: none;
 
   margin: 0;
-  padding: 0;
+  padding: 0 2px 0 0;
 
   display: flex;
   flex-direction: column;
@@ -1317,6 +1360,28 @@
   max-height: 520px;
 
   overflow-y: auto;
+
+  /* Slim, polished scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+}
+
+.members-directory-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.members-directory-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.members-directory-list::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+
+  border-radius: 999px;
+}
+
+.members-directory-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.7);
 }
 
 .member-directory-item {
@@ -1324,6 +1389,11 @@
   align-items: flex-start;
 
   gap: 10px;
+
+  width: 100%;
+  min-width: 0;
+
+  box-sizing: border-box;
 
   padding: 10px;
 
@@ -1339,6 +1409,10 @@
 
 .member-directory-item:hover {
   border-color: #3b82f6;
+}
+
+.member-directory-avatar {
+  flex-shrink: 0;
 }
 
 .member-directory-info {
@@ -1365,6 +1439,10 @@
   font-size: 11.5px;
 
   color: #8b94a5;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .member-directory-email {

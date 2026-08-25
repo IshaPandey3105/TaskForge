@@ -20,7 +20,6 @@ function MemberDirectory({
   canManage,
   onOpenDetails,
   onQuickAdd,
-  onRemoveRequest,
 }) {
   const [query, setQuery] = useState("");
 
@@ -82,7 +81,9 @@ function MemberDirectory({
                 ? `${member.projectCount} project${member.projectCount === 1 ? "" : "s"}`
                 : "No projects"
               : role
-                ? ROLE_LABELS[role] || role
+                ? role === "admin"
+                  ? "Project Admin"
+                  : ROLE_LABELS[role] || role
                 : "Not a member";
             const statusClass = !selectedProjectId
               ? "neutral"
@@ -131,20 +132,6 @@ function MemberDirectory({
                       }}
                     >
                       + Add
-                    </button>
-                  )}
-
-                  {canManage && selectedProjectId && role && (
-                    <button
-                      type="button"
-                      className="directory-remove-btn"
-                      title={`Remove from ${manageableProjects.find((p) => p._id === selectedProjectId)?.name || "project"}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRemoveRequest(member);
-                      }}
-                    >
-                      Remove
                     </button>
                   )}
                 </div>

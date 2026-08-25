@@ -2,7 +2,7 @@ import formatDate from "../../utils/formatDate";
 import { ROLE_LABELS } from "./membersConstants";
 import MemberAvatar from "./MemberAvatar";
 
-function MemberCard({ member, onOpenDetails }) {
+function MemberCard({ member, onOpenDetails, onRemove }) {
   return (
     <div
       className="member-card clickable"
@@ -24,7 +24,9 @@ function MemberCard({ member, onOpenDetails }) {
         </div>
 
         <span className={`role-badge ${member.highestRole}`}>
-          {ROLE_LABELS[member.highestRole]}
+          {member.highestRole === "admin"
+            ? "Project Admin"
+            : ROLE_LABELS[member.highestRole]}
         </span>
       </div>
 
@@ -34,6 +36,18 @@ function MemberCard({ member, onOpenDetails }) {
           <span>Joined {formatDate(member.joinedAt)}</span>
         )}
       </div>
+
+      {onRemove && (
+        <div className="member-card-actions" onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            className="member-remove-btn"
+            onClick={() => onRemove(member)}
+          >
+            Remove from this Project
+          </button>
+        </div>
+      )}
     </div>
   );
 }

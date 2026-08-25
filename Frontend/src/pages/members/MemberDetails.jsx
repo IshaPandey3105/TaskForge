@@ -35,7 +35,7 @@ function MemberDetails({ modal, onClose }) {
                   </span>
                 </div>
                 <span className={`role-badge ${ms.role}`}>
-                  {ROLE_LABELS[ms.role]}
+                  {ms.role === "admin" ? "Project Admin" : ROLE_LABELS[ms.role]}
                 </span>
               </li>
             ))}
