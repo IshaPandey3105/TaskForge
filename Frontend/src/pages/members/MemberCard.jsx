@@ -2,7 +2,9 @@ import formatDate from "../../utils/formatDate";
 import { ROLE_LABELS } from "./membersConstants";
 import MemberAvatar from "./MemberAvatar";
 
-function MemberCard({ member, onOpenDetails, onRemove }) {
+function MemberCard({ member, currentUserId, onOpenDetails }) {
+  const isSelf = member.user?._id === currentUserId;
+
   return (
     <div
       className="member-card clickable"
@@ -13,7 +15,7 @@ function MemberCard({ member, onOpenDetails, onRemove }) {
 
         <div className="member-card-info">
           <span className="member-card-name">
-            {member.user?.fullName || "Unknown"}
+            {isSelf ? "(you)" : member.user?.fullName || "Unknown"}
           </span>
           <span className="member-card-username">
             @{member.user?.username || "unknown"}
@@ -36,18 +38,6 @@ function MemberCard({ member, onOpenDetails, onRemove }) {
           <span>Joined {formatDate(member.joinedAt)}</span>
         )}
       </div>
-
-      {onRemove && (
-        <div className="member-card-actions" onClick={(e) => e.stopPropagation()}>
-          <button
-            type="button"
-            className="member-remove-btn"
-            onClick={() => onRemove(member)}
-          >
-            Remove from this Project
-          </button>
-        </div>
-      )}
     </div>
   );
 }

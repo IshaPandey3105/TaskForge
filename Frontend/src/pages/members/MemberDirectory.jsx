@@ -18,6 +18,7 @@ function MemberDirectory({
   onSelectProject,
   membershipsByProject,
   canManage,
+  currentUserId,
   onOpenDetails,
   onQuickAdd,
 }) {
@@ -106,7 +107,9 @@ function MemberDirectory({
 
                 <div className="member-directory-info">
                   <span className="member-directory-name">
-                    {member.user?.fullName || "Unknown"}
+                    {member.user?._id === currentUserId
+                      ? "(you)"
+                      : member.user?.fullName || "Unknown"}
                   </span>
                   <span className="member-directory-username">
                     @{member.user?.username || "unknown"}
