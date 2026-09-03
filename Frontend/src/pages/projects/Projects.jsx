@@ -199,7 +199,7 @@ function Projects() {
   if (error && projects.length === 0) {
     return (
       <div className="projects-page">
-        <h1>Projects</h1>
+        <p className="page-tagline">Let's start by creating a project.</p>
         <p className="projects-error">{error}</p>
       </div>
     );
@@ -208,10 +208,7 @@ function Projects() {
   return (
     <div className="projects-page">
       <div className="projects-header">
-        <div>
-          <h1>Projects</h1>
-          <p>Manage your project workspaces.</p>
-        </div>
+        <p className="page-tagline">Let's start by creating a project.</p>
 
         {isGlobalAdmin && (
           <button type="button" className="projects-create-btn" onClick={openCreate}>

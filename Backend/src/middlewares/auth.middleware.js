@@ -4,6 +4,7 @@ import { ApiError } from '../utils/api-error.js';
 import { asyncHandler } from '../utils/async-handler.js';
 import { ProjectMember } from '../models/projectmember.models.js';
 import mongoose from 'mongoose';
+import { UserRolesEnum } from '../utils/constants.js';
 
 export const verifyJWT = asyncHandler(async (req, res, next) => {
   // JWT can come either from cookies or Authorization header
@@ -101,3 +102,51 @@ export const validateProjectPermission = (roles = []) =>
 
     next();
   });
+
+//validateRemoveMemberPermission() authorizes DELETE /projects/:projectId/members/:userId.
+//
+// A global Admin (user.role === ADMIN) is allowed to remove members from any
+// project they belong to. Everyone else must hold an ADMIN or PROJECT_ADMIN
+// membership role inside that project. Normal members can never remove anyone.
+//
+// Removing a Global Admin is additionally blocked inside deleteMember().
+export const validateRemoveMemberPermission = asyncHandler(
+  async (req, res, next) => {
+    const { projectId } = req.params;
+
+    if (!projectId) {
+      throw new ApiError(400, 'Project id is missing');
+    }
+
+    // Global admins bypass the project-membership gate.
+    const caller = await User.findById(req.user._id).select('role');
+    if (caller?.role === UserRolesEnum.ADMIN) {
+      return next();
+    }
+
+    const project = await ProjectMember.findOne({
+      project: new mongoose.Types.ObjectId(projectId),
+      user: new mongoose.Types.ObjectId(req.user._id),
+    });
+
+    if (!project) {
+      throw new ApiError(404, 'Project not found');
+    }
+
+    const givenRole = project?.role;
+
+    if (
+      ![
+        UserRolesEnum.ADMIN,
+        UserRolesEnum.PROJECT_ADMIN,
+      ].includes(givenRole)
+    ) {
+      throw new ApiError(
+        403,
+        'You do not have permission to perform this action'
+      );
+    }
+
+    next();
+  }
+);

@@ -63,6 +63,10 @@ function ProjectDetails() {
   const [memberToRemove, setMemberToRemove] = useState(null);
   const [removingMember, setRemovingMember] = useState(false);
 
+  // Global role of every registered user, used so a Project Admin never sees
+  // (or attempts) removing a Global Admin from the project.
+  const [globalRoles, setGlobalRoles] = useState({});
+
   const flashSuccess = (message) => {
     setActionSuccess(message);
     setTimeout(() => setActionSuccess(""), 4000);
@@ -105,6 +109,20 @@ function ProjectDetails() {
       );
       setCreator(listed?.createdBy || null);
 
+      // Build a user-id → global role map so removal permissions can be
+      // enforced in the UI (the project-members endpoint does not expose
+      // global roles).
+      try {
+        const usersRes = await api.get("/users");
+        const roleMap = {};
+        (usersRes.data.data || []).forEach((u) => {
+          if (u?._id) roleMap[u._id] = u.role;
+        });
+        setGlobalRoles(roleMap);
+      } catch {
+        setGlobalRoles({});
+      }
+
       await Promise.all([loadMembers(), loadTasks()]);
     } catch (e) {
       setError(e.response?.data?.message || "Unable to load project.");
@@ -123,6 +141,22 @@ function ProjectDetails() {
   const myRole = myMembership?.role || null;
   const canManage = myRole === "admin" || myRole === "project-admin";
   const canDelete = myRole === "admin";
+
+  // Whether the current user may remove a given project member:
+  // - you can never remove yourself
+  // - Global Admins may remove any member (backed by the backend)
+  // - Project Admins can remove regular Members only
+  // - a Global Admin is never removable by a non-Global-Admin
+  // - normal Members cannot remove anyone
+  const isGlobalAdmin = user?.role === "admin";
+
+  const canRemoveMember = (member) => {
+    if (!member?.user?._id) return false;
+    if (member.user._id === user?._id) return false;
+    if (isGlobalAdmin) return true;
+    if (globalRoles[member.user._id] === "admin") return false;
+    return canManage;
+  };
 
   // ---- Actions ----
 
@@ -356,6 +390,7 @@ function ProjectDetails() {
           members={members}
           currentUserId={user?._id}
           canManage={canManage}
+          canRemoveMember={canRemoveMember}
           roleBusyId={roleBusyId}
           onRoleChange={handleRoleChange}
           onRequestRemove={(member) => {

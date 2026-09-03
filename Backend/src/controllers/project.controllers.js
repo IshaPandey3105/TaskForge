@@ -253,10 +253,17 @@ const deleteMember = asyncHandler(async (req, res) => {
     throw new ApiError(404, 'Project member not found');
   }
 
-  // A global Admin can never be removed as a project member.
+  // A Global Admin (global user.role === ADMIN) may remove any other project
+  // member. A Project Admin may remove regular Members but can never remove a
+  // Global Admin.
   const targetUser = await User.findById(userId).select('role');
+  const callerUser = await User.findById(req.user._id).select('role');
+  const callerIsGlobalAdmin = callerUser?.role === UserRolesEnum.ADMIN;
 
-  if (targetUser?.role === UserRolesEnum.ADMIN) {
+  if (
+    targetUser?.role === UserRolesEnum.ADMIN &&
+    !callerIsGlobalAdmin
+  ) {
     throw new ApiError(
       403,
       'Global admins cannot be removed from a project'

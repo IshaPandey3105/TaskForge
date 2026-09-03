@@ -393,6 +393,53 @@
   line-height: 1.5;
 }
 
+/* ---------- PROFILE PICTURE UPLOAD ---------- */
+
+.settings-avatar-form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.settings-avatar-controls {
+  display: flex;
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 12px;
+}
+
+.settings-avatar-input {
+  font-family: inherit;
+  font-size: 13px;
+
+  color: #9aa3b2;
+}
+
+.settings-avatar-input::file-selector-button {
+  padding: 9px 14px;
+
+  border: 1px solid #2a3242;
+  border-radius: 10px;
+
+  background: #1a2130;
+
+  color: #e5e7eb;
+
+  font-family: inherit;
+  font-size: 13px;
+
+  cursor: pointer;
+
+  margin-right: 12px;
+}
+
+.settings-avatar-input::file-selector-button:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
 /* ---------- ERROR BANNER ---------- */
 
 .settings-error-banner {
@@ -475,6 +522,22 @@
 }
 
 [data-theme="light"] .settings-options button:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .settings-avatar-input {
+  color: #6b7280;
+}
+
+[data-theme="light"] .settings-avatar-input::file-selector-button {
+  background: #ffffff;
+
+  border-color: #d1d5db;
+
+  color: #374151;
+}
+
+[data-theme="light"] .settings-avatar-input::file-selector-button:hover {
   background: rgba(0, 0, 0, 0.05);
 }
 

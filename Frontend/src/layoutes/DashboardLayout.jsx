@@ -79,7 +79,21 @@ function DashboardLayout() {
   return (
     <div className="dashboard-layout">
       <aside className="dashboard-sidebar">
-        <div className="dashboard-brand">TaskForge</div>
+        <div
+          className="dashboard-brand"
+          role="button"
+          tabIndex={0}
+          title="Go to Dashboard"
+          onClick={() => navigate("/dashboard")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              navigate("/dashboard");
+            }
+          }}
+        >
+          TaskForge
+        </div>
 
         <nav className="dashboard-nav">
           <p className="nav-section-label">Workspace</p>

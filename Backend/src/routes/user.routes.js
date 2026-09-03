@@ -1,6 +1,10 @@
 import { Router } from 'express';
-import { getAllUsers } from '../controllers/user.controllers.js';
+import {
+  getAllUsers,
+  updateProfileAvatar,
+} from '../controllers/user.controllers.js';
 import { verifyJWT } from '../middlewares/auth.middleware.js';
+import { upload } from '../middlewares/multer.middleware.js';
 
 const router = Router();
 
@@ -8,5 +12,8 @@ const router = Router();
 router.use(verifyJWT);
 
 router.route('/').get(getAllUsers);
+
+// Authenticated users may update their own profile picture.
+router.route('/avatar').patch(upload.single('avatar'), updateProfileAvatar);
 
 export default router;

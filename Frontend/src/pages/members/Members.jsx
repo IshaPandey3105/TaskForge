@@ -32,7 +32,7 @@ function Members() {
   // Details modal
   const [detailModal, setDetailModal] = useState(null); // { member }
 
-  // Directory: project context used for membership status + quick add/remove
+  // Directory: project context used for membership status + quick add
   const [dirProjectId, setDirProjectId] = useState("");
 
   // Add member modal
@@ -45,10 +45,6 @@ function Members() {
   const [adding, setAdding] = useState(false);
   const [addError, setAddError] = useState("");
   const [addSuccess, setAddSuccess] = useState("");
-
-  // Remove member confirmation
-  const [removeTarget, setRemoveTarget] = useState(null); // { member, projectId }
-  const [removing, setRemoving] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -210,16 +206,6 @@ function Members() {
       );
   }, [allUsers, directory, membershipsByProject, projects]);
 
-  // Map of global role per user id, used so the UI never offers (or allows)
-  // removing a Global Admin as a project member. The backend also blocks it.
-  const globalRoleByUserId = useMemo(() => {
-    const map = {};
-    allUsers.forEach((u) => {
-      if (u?._id) map[u._id] = u.role;
-    });
-    return map;
-  }, [allUsers]);
-
   const stats = useMemo(() => {
     return {
       total: directory.length,
@@ -315,54 +301,6 @@ function Members() {
     setAddModalOpen(true);
   };
 
-  const handleRemoveRequest = (member) => {
-    if (!dirProjectId) return;
-    setRemoveTarget({ member, projectId: dirProjectId });
-  };
-
-  const handleRemoveMember = async () => {
-    if (!removeTarget) return;
-
-    setRemoving(true);
-
-    try {
-      await api.delete(
-        `/projects/${removeTarget.projectId}/members/${removeTarget.member.user._id}`
-      );
-
-      const projectName =
-        projects.find((p) => p._id === removeTarget.projectId)?.name ||
-        "project";
-
-      setRemoveTarget(null);
-      setAddSuccess(
-        `${removeTarget.member.user?.fullName || "Member"} removed from ${projectName}.`
-      );
-      setTimeout(() => setAddSuccess(""), 4000);
-      await loadData();
-    } catch (err) {
-      setRemoveTarget(null);
-      setError(err.response?.data?.message || "Unable to remove member.");
-      setTimeout(() => setError(""), 4000);
-    } finally {
-      setRemoving(false);
-    }
-  };
-
-  // Whether the current user is allowed to remove this member from the
-  // currently selected project. Only Admin / Project Admin may remove; a
-  // Project Admin can never remove a Global Admin; Members remove nothing.
-  const canRemoveMember = (member) => {
-    if (!dirProjectId) return false;
-    if (!canManageProject(dirProjectId)) return false;
-    if (member.user?._id === user?._id) return false;
-    if (globalRoleByUserId[member.user?._id] === "admin") return false;
-    // The person must actually be assigned to the selected project.
-    return (membershipsByProject[dirProjectId] || []).some(
-      (m) => m.user?._id === member.user?._id
-    );
-  };
-
   const handleAddMember = async (e) => {
     e.preventDefault();
 
@@ -412,13 +350,7 @@ function Members() {
     <div className="members-page">
       {/* Header */}
       <div className="members-header">
-        <div>
-          <h1>Members</h1>
-          <p>
-            Teammates across your projects, with their project roles and
-            memberships.
-          </p>
-        </div>
+        <p className="page-tagline">Build and manage your project team.</p>
 
         {manageableProjects.length > 0 && (
           <button type="button" className="members-add-btn" onClick={openAddModal}>
@@ -483,7 +415,6 @@ function Members() {
                   key={member.user?._id}
                   member={member}
                   onOpenDetails={openDetails}
-                  onRemove={canRemoveMember(member) ? handleRemoveRequest : null}
                 />
               ))}
             </div>
@@ -566,44 +497,6 @@ function Members() {
         onSubmit={handleAddMember}
         manageableProjects={manageableProjects}
       />
-
-      {/* Remove member confirmation */}
-      {removeTarget && (
-        <div
-          className="modal-overlay"
-          onClick={() => !removing && setRemoveTarget(null)}
-        >
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Remove from Project?</h3>
-            <p className="modal-text">
-              This will remove "{removeTarget.member.user?.fullName ||
-                removeTarget.member.user?.username}" (@
-              {removeTarget.member.user?.username || "unknown"}) from "
-              {projects.find((p) => p._id === removeTarget.projectId)?.name ||
-                "this project"}
-              ". They will lose access to it.
-            </p>
-
-            <div className="modal-actions">
-              <button
-                type="button"
-                onClick={() => setRemoveTarget(null)}
-                disabled={removing}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="modal-danger"
-                onClick={handleRemoveMember}
-                disabled={removing}
-              >
-                {removing ? "Removing..." : "Remove Member"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

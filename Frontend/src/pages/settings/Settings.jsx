@@ -1,6 +1,5 @@
 import { useState } from "react";
 import api from "../../services/api";
-import useAuthStore from "../../store/authStore";
 import {
   getStoredTheme,
   getStoredCompact,
@@ -38,8 +37,6 @@ function writeNotifPref(key, value) {
 }
 
 function Settings() {
-  const user = useAuthStore((state) => state.user);
-
   const [activeTab, setActiveTab] = useState("profile");
 
   // ---- Appearance (real, persisted, applied instantly) ----
@@ -146,8 +143,9 @@ function Settings() {
   return (
     <div className="settings-page">
       <div className="settings-header">
-        <h1>Settings</h1>
-        <p>Manage your TaskForge account and preferences.</p>
+        <p className="page-tagline">
+          Manage your preferences and account.
+        </p>
       </div>
 
       <div className="settings-layout">
@@ -166,7 +164,7 @@ function Settings() {
 
         <div className="settings-content">
           {/* ---------- PROFILE (read-only: no backend update endpoint) ---------- */}
-          {activeTab === "profile" && <SettingsProfileTab user={user} />}
+          {activeTab === "profile" && <SettingsProfileTab />}
 
           {/* ---------- APPEARANCE (real, instant, persisted) ---------- */}
           {activeTab === "appearance" && (

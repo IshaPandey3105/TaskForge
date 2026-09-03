@@ -12,6 +12,7 @@ import {
 } from '../controllers/project.controllers.js';
 import {
   validateProjectPermission,
+  validateRemoveMemberPermission,
   verifyJWT,
 } from '../middlewares/auth.middleware.js';
 import { validate } from '../middlewares/validator.middleware.js';
@@ -66,12 +67,6 @@ router
     ]),
     updateMemberRole
   )
-  .delete(
-    validateProjectPermission([
-      UserRolesEnum.ADMIN,
-      UserRolesEnum.PROJECT_ADMIN,
-    ]),
-    deleteMember
-  );
+  .delete(validateRemoveMemberPermission, deleteMember);
 
 export default router;

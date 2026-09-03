@@ -5,6 +5,7 @@ function ProjectMembersPanel({
   members,
   currentUserId,
   canManage,
+  canRemoveMember,
   roleBusyId,
   onRoleChange,
   onRequestRemove,
@@ -37,6 +38,7 @@ function ProjectMembersPanel({
             // never offers "Admin" as an assignable project role.
             const showRoleSelect =
               canManage && !isSelf && member.role !== "admin";
+            const showRemove = canRemoveMember?.(member) === true;
 
             return (
               <li key={member.user?._id} className="pd-member-item">
@@ -76,7 +78,7 @@ function ProjectMembersPanel({
                     </span>
                   )}
 
-                  {canManage && !isSelf && (
+                  {showRemove && (
                     <button
                       type="button"
                       className="pd-remove-btn"

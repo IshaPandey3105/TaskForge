@@ -85,3 +85,20 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Small contextual line shown under the topbar on dashboard pages in
+   place of a duplicated page heading (the page name lives in the navbar). */
+.page-tagline {
+  margin: 0;
+
+  font-size: 14px;
+  font-weight: 400;
+
+  color: #9aa3b2;
+
+  line-height: 1.5;
+}
+
+[data-theme="light"] .page-tagline {
+  color: #6b7280;
+}

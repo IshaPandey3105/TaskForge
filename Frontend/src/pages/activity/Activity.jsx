@@ -380,7 +380,9 @@ function Activity() {
   if (error && projects.length === 0) {
     return (
       <div className="activity-page">
-        <h1>Activity</h1>
+        <p className="page-tagline">
+          See what's happening across your workspace.
+        </p>
         <p className="activity-error">{error}</p>
       </div>
     );
@@ -390,13 +392,9 @@ function Activity() {
     <div className="activity-page">
       {/* Header */}
       <div className="activity-header">
-        <div>
-          <h1>Activity</h1>
-          <p>
-            A chronological stream of everything happening across your
-            workspace.
-          </p>
-        </div>
+        <p className="page-tagline">
+          See what's happening across your workspace.
+        </p>
       </div>
 
       <div className="activity-layout">

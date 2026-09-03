@@ -12,6 +12,10 @@ const useAuthStore = create((set) => ({
       isAuthenticated: true,
     }),
 
+  // Update the authenticated user in memory (e.g. after a profile picture
+  // change) without touching auth tokens.
+  setUser: (user) => set({ user }),
+
   checkAuth: async () => {
     try {
       const response = await api.get("/auth/current-user");

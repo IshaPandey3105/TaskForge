@@ -247,7 +247,9 @@ function Notes() {
   if (error && projects.length === 0) {
     return (
       <div className="notes-page">
-        <h1>Notes</h1>
+        <p className="page-tagline">
+          Capture what matters to your projects.
+        </p>
         <p className="notes-error">{error}</p>
       </div>
     );
@@ -257,10 +259,9 @@ function Notes() {
     <div className="notes-page">
       {/* Header */}
       <div className="notes-header">
-        <div>
-          <h1>Notes</h1>
-          <p>Project notes and shared knowledge across your workspace.</p>
-        </div>
+        <p className="page-tagline">
+          Capture what matters to your projects.
+        </p>
 
         <button
           type="button"

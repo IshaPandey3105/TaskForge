@@ -409,7 +409,7 @@ function Tasks() {
   if (error && projects.length === 0) {
     return (
       <div className="tasks-page">
-        <h1>Tasks</h1>
+        <p className="page-tagline">Plan, assign, and track your work.</p>
         <p className="tasks-error">{error}</p>
       </div>
     );
@@ -419,10 +419,7 @@ function Tasks() {
     <div className="tasks-page">
       {/* Header */}
       <div className="tasks-header">
-        <div>
-          <h1>Tasks</h1>
-          <p>Track and manage work across all your projects.</p>
-        </div>
+        <p className="page-tagline">Plan, assign, and track your work.</p>
 
         <button
           type="button"
