@@ -1671,3 +1671,154 @@
 [data-theme="light"] .member-detail-email {
   color: #6b7280;
 }
+
+/* ---------- AVATAR MODAL ---------- */
+
+.avatar-modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 300;
+}
+
+.avatar-modal {
+  background: #161b26;
+  border: 1px solid #232a38;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.avatar-modal-image {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 16px;
+  border: 3px solid #2563eb;
+}
+
+.avatar-modal-initials {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  font-weight: 700;
+  margin: 0 auto 16px;
+  border: 3px solid #3b82f6;
+}
+
+.avatar-modal-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f3f4f6;
+  margin: 0 0 4px;
+}
+
+.avatar-modal-email {
+  font-size: 14px;
+  color: #9aa3b2;
+  margin: 0 0 16px;
+}
+
+.avatar-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.avatar-modal-actions button {
+  padding: 9px 16px;
+  border: 1px solid #2a3242;
+  border-radius: 10px;
+  background: transparent;
+  color: #c3cad6;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.avatar-modal-actions button:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ---------- MEMBER REMOVE ---------- */
+
+.members-remove-btn {
+  padding: 5px 8px;
+  border: 1px solid rgba(231, 21, 21, 0.3);
+  border-radius: 6px;
+  background: rgba(231, 21, 21, 0.1);
+  color: #e58383;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.members-remove-btn:hover {
+  background: rgba(231, 21, 21, 0.2);
+}
+
+.members-remove-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.member-membership-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.remove-confirm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.remove-confirm-text {
+  font-size: 12px;
+  color: #e58383;
+  font-weight: 500;
+}
+
+.remove-confirm button {
+  padding: 4px 8px;
+  border: 1px solid #2a3242;
+  border-radius: 6px;
+  background: transparent;
+  color: #c3cad6;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.remove-confirm button:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.remove-confirm button.modal-danger {
+  border: none;
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.remove-confirm button.modal-danger:hover {
+  background: #ef4444;
+}
+
+.remove-confirm button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

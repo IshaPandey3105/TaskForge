@@ -4,6 +4,24 @@ import useAuthStore from "../store/authStore";
 import LogoutConfirmModal from "../pages/logout/LogoutConfirmModal";
 import "./DashboardLayout.css";
 
+function AvatarModal({ url, initials, name, onClose }) {
+  return (
+    <div className="avatar-modal-overlay" onClick={onClose}>
+      <div className="avatar-modal" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="avatar-modal-close" onClick={onClose}>
+          ×
+        </button>
+        {url ? (
+          <img src={url} alt={name || "Profile"} className="avatar-modal-image" />
+        ) : (
+          <span className="avatar-modal-initials">{initials}</span>
+        )}
+        <span className="avatar-modal-name">{name}</span>
+      </div>
+    </div>
+  );
+}
+
 const mainNavItems = [
   { label: "Dashboard", path: "/dashboard", icon: "◈" },
   { label: "Projects", path: "/projects", icon: "▤" },
@@ -26,6 +44,7 @@ function DashboardLayout() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const profileRef = useRef(null);
 
   const handleLogout = async () => {
@@ -151,15 +170,26 @@ function DashboardLayout() {
               aria-haspopup="menu"
               aria-expanded={profileOpen}
             >
-              {showAvatar ? (
-                <img
-                  className="profile-avatar"
-                  src={avatarUrl}
-                  alt={user?.fullName || "User"}
-                />
-              ) : (
-                <span className="profile-avatar-fallback">{initials}</span>
-              )}
+              <div
+                className="profile-avatar-clickable"
+                onClick={(e) => {
+                  if (avatarUrl) {
+                    e.stopPropagation();
+                    setAvatarModalOpen(true);
+                  }
+                }}
+                title={avatarUrl ? "View profile picture" : ""}
+              >
+                {showAvatar ? (
+                  <img
+                    className="profile-avatar"
+                    src={avatarUrl}
+                    alt={user?.fullName || "User"}
+                  />
+                ) : (
+                  <span className="profile-avatar-fallback">{initials}</span>
+                )}
+              </div>
 
               <div className="profile-info">
                 <span className="profile-name">
@@ -252,6 +282,16 @@ function DashboardLayout() {
         onCancel={() => setLogoutConfirmOpen(false)}
         onConfirm={handleLogout}
       />
+
+      {/* Avatar modal */}
+      {avatarModalOpen && (
+        <AvatarModal
+          url={avatarUrl}
+          initials={initials}
+          name={user?.fullName}
+          onClose={() => setAvatarModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

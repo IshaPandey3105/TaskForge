@@ -484,6 +484,8 @@ function Members() {
       <MemberDetails
         modal={detailModal}
         onClose={() => setDetailModal(null)}
+        onMemberRemoved={loadData}
+        rolesByProject={rolesByProject}
       />
 
       {/* Add Member modal */}

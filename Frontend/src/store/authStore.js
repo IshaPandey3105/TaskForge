@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import api from "../services/api";
 
-const useAuthStore = create((set) => ({
+const useAuthStore = create((set, get) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
@@ -15,6 +15,15 @@ const useAuthStore = create((set) => ({
   // Update the authenticated user in memory (e.g. after a profile picture
   // change) without touching auth tokens.
   setUser: (user) => set({ user }),
+
+  // Merge partial updates into the current user object (e.g. after editing
+  // profile details or changing the avatar).
+  updateUser: (updates) => {
+    const currentUser = get().user;
+    if (currentUser) {
+      set({ user: { ...currentUser, ...updates } });
+    }
+  },
 
   checkAuth: async () => {
     try {

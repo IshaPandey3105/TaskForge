@@ -1,17 +1,11 @@
 import multer from "multer";
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    // This storage needs public/images folder in the root directory
-    // Else it will throw an error saying cannot find path public/images
-    cb(null, `./public/images`);
-  },
-  filename: function (req, file, cb) {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
-});
+// Use memory storage so uploaded files are temporary and never saved
+// permanently to disk. Files are uploaded to Cloudinary and the temp
+// buffer is discarded after the request.
+const storage = multer.memoryStorage();
 
-// Middleware responsible to read form data and upload the File object to the mentioned path
+// Middleware responsible to read form data and upload the File object to memory
 export const upload = multer({
   storage,
   limits: { 
